@@ -1,17 +1,23 @@
 <template>
-  <div>
-    <div class="pagination">
-      <button @click="prevPage"
-            ><</button> 
-      <p>{{ nameOfOneMonth }} {{ year }}</p>
-      <button @click="nextPage"
-            >></button> 
-    </div>
+  <div class="all">
+    <div class="allсalendar">
+      <div class="pagination">
+        <div @click="prevPage"
+              ><</div> 
+        <p>{{ nameOfOneMonth }} {{ year }}</p>
+        <div @click="nextPage"
+              >></div> 
+      </div>
 
-    <div class="calendar">
-        <div class="nameOfDays"><li v-for="days in nameOfDays">{{ days }}</li></div>
-        <div v-for="(monthInCalendar, index) in getCalendar" :key = "index" class="month">
-        {{ monthInCalendar }}</div>
+      <div class="calendar">
+        <div class="d_nameOfDays">
+          <li v-for="day in nameOfDays" class="nameOfDays">{{ day }}</li>
+        </div>
+
+        <div v-for="week in getCalendar" class="d_day">
+          <div v-for="day in week" class="day">{{ day }}</div>
+        </div>
+      </div>
     </div>
   </div>
 </template>
@@ -23,7 +29,7 @@ export default {
     return{
       currentPage: 0,
       namesOfMonths: ['January', 'February', 'March', 'April', 'May', 'June', 'July', 'August', 'September', 'October', 'November', 'December'],
-      nameOfOneMonth: 'January',
+      nameOfOneMonth: '',
       nameOfDays: ['Пн', 'Вт', 'Ср', 'Чт', 'Пт', 'Сб', 'Вс'],
       date: new Date(),
       year: ''
@@ -36,6 +42,8 @@ export default {
   },
   mounted(){
     this.year = this.date.getFullYear();
+    this.currentPage = this.date.getMonth();
+    this.nameOfOneMonth = this.namesOfMonths[this.currentPage];
   },
   methods: {
     prevPage(){
@@ -116,35 +124,68 @@ export default {
 </script>
 
 <style>
-  .month{
-    list-style-type: none;
-    width: 180px;
-    border: 1px solid black;
-    display: flex;
-    justify-content: space-between;
+  body{
+    background-color: #FAFAFA;
+  }
+  .allсalendar{
+    background-color: white;
     margin-left: 30px;
+    margin-right: 1208px
   }
   .pagination{
-    margin: 10px auto -15px 23px;
+    justify-content: space-between;
   }
   .pagination, .nameOfDays{
     display: flex;
   }
-  .pagination button{
+  .nameOfDays{
+    font-size: 20px;
+  }
+  .pagination div{
     width: 30px;
-    height: 20px;
-    margin: 14px 5px auto 5px;
+    height: 30px;
+    padding-top: 8px;
+    margin-bottom: -5px;
+    text-align: center;
+    font-size: 20px;
+    font-weight: bold;
+    cursor: pointer;
+  }
+  .pagination div:active{
+    color: #9D9D9D;
+  }
+  .pagination div:hover{
+    color: white;
+    background-color: #DEDEDE;
   }
   .pagination p{
-    width: 115px;
+    margin: 10px auto 5px auto;
     text-align: center;
+    font-weight: bold;
+    font-size: 18px;
   }
-  .nameOfDays{
-    width: 180px;
+  .d_nameOfDays{
+    margin: 5px auto 5px auto;
+    padding-left: 10px;
+    background-color: #DEDEDE;
+    
+  }
+  .nameOfDays, .day{
     list-style-type: none;
-    display: flex;
-    justify-content: space-between;
-    margin-left: 30px;
+    text-align: center;
+    cursor: pointer;
+  }
+  .d_day, .d_nameOfDays{
+    display: grid;
+    grid-template-columns: 1fr 1fr 1fr 1fr 1fr 1fr 1fr;
+  }
+  .day{
+    font-size: 18px;
+  }
+  .day:hover {
+    background: #16B9DE;
+    color: white;
+    border-radius: 10%;
 
   }
 </style>
