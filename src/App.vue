@@ -1,13 +1,11 @@
-<!-- поменял год на гетфуллуеиар -->
 <template>
   <div>
     <div class="pagination">
       <button @click="prevPage"
-            :disabled="currentPage === 0"
-            >Pref</button> 
-      <p>{{ currentPage }} {{ nameOfOneMonth }} {{ year }}</p>
+            ><</button> 
+      <p>{{ nameOfOneMonth }} {{ year }}</p>
       <button @click="nextPage"
-            >Next</button> 
+            >></button> 
     </div>
 
     <div class="calendar">
@@ -41,19 +39,19 @@ export default {
   },
   methods: {
     prevPage(){
-      this.currentPage--;
-      if(this.currentPage % 11 === 0){
-        this.currentPage == 11;
+      if (this.currentPage === 0) {
+        this.currentPage = 12;
         this.year--;
       }
+      this.currentPage--;
       this.nameOfOneMonth = this.namesOfMonths[this.currentPage];
     },
     nextPage(){
-      this.currentPage++;
-      if(this.currentPage % 11 === 0){
-        this.currentPage == 0;
-        this.year++; 
+      if (this.currentPage === 11) {
+        this.currentPage = -1;
+        this.year++;
       }
+      this.currentPage++;
       this.nameOfOneMonth = this.namesOfMonths[this.currentPage];
     },
     getYear(){
@@ -124,14 +122,29 @@ export default {
     border: 1px solid black;
     display: flex;
     justify-content: space-between;
+    margin-left: 30px;
+  }
+  .pagination{
+    margin: 10px auto -15px 23px;
   }
   .pagination, .nameOfDays{
     display: flex;
+  }
+  .pagination button{
+    width: 30px;
+    height: 20px;
+    margin: 14px 5px auto 5px;
+  }
+  .pagination p{
+    width: 115px;
+    text-align: center;
   }
   .nameOfDays{
     width: 180px;
     list-style-type: none;
     display: flex;
     justify-content: space-between;
+    margin-left: 30px;
+
   }
 </style>
