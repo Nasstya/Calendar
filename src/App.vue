@@ -159,26 +159,29 @@ export default {
 <style>
   body{
     background-color: #FAFAFA;
+    margin: 0;
+    padding: 0;
   }
   .overflow-div{
     overflow: hidden;
-    width: 250px;
-    height: 230px;
+    width: 100%;
+    height: 690px;
     position: absolute;
-    margin: 5% auto auto 5%;
+    /*margin: 5% auto auto 5%;*/
 
   }
   .pagination{
     display: grid;
-    height: 40px;
+    height: 80px;
     grid-template-columns: 1fr 4fr 1fr;
     background-color: white;
   }
   .btn-left, .btn-right{
-    padding: 10px 10px;
-    height: 20px;
+    padding-top: 20px;
     font-weight: bold;
-    font-size: 18px;
+    font-size: 40px;
+    text-align: center;
+    height: 60px;
   }
   .btn-left:hover, .btn-right:hover{
     background-color: #9D9D9D;
@@ -187,22 +190,23 @@ export default {
   }
   .pagination p{
     text-align: center;
-    font-size: 18px;
+    font-size: 40px;
     margin-top: 10px;
     font-weight: bold;
   }
   .d_nameOfDays{
     display: grid;
-    height: 25px;
+    height: 70px;
     grid-template-columns: 1fr 1fr 1fr 1fr 1fr 1fr 1fr;
     background-color: #DEDEDE;;
     list-style-type: none;
     text-align: center;
-    padding-top: 5px;
+    padding-top: 15px;
+    font-size: 40px;
   }
   .d_day{
     display: grid;
-    height: 23px;
+    height: 81px;
     width: 100%;
     grid-template-columns: 1fr 1fr 1fr 1fr 1fr 1fr 1fr;
     background-color: white;
@@ -210,8 +214,12 @@ export default {
     text-align: center;
     padding-top: 3px;
   }
+
   .day{
     border: 1px solid white;
+    padding-top: 20px;
+    height: 60px;
+    font-size: 40px;
   }
   .day:hover{
     cursor: pointer;
@@ -229,7 +237,7 @@ export default {
     overflow: hidden;
     position: absolute;
     width: 100%;
-    height: 156px;
+    height: 700px;
     background-color: white;
   }
 
