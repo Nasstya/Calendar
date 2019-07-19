@@ -26,7 +26,6 @@
 </template>
 
 <script>
-
 export default {
   data(){
     return{
@@ -71,7 +70,6 @@ export default {
       this.nameOfClass = 'next';
       this.currentPage++;
       this.nameOfOneMonth = this.namesOfMonths[this.currentPage];
-
     },
     isAnotherMonth(weekIndex, dayNumber) {
       if(weekIndex === 0 && dayNumber > 15) {
@@ -129,17 +127,23 @@ export default {
           }
         }
         //Заполняем конец каждого месяца числами из будущего месяца
-        if(this.getNumberOfFirstDayInMonth(months + 1) > 1){
+        if((this.getNumberOfFirstDayInMonth(months) === 0 || 
+          this.getNumberOfFirstDayInMonth(months) === 6) &&
+          (this.getNumberOfFirstDayInMonth(months + 1) > 1 &&
+          this.getNumberOfFirstDayInMonth(months + 1) < 3)){
           let t = 0;
           for(let q = this.getNumberOfFirstDayInMonth(months + 1); q <= 7; q++){
             t++;
             massOfMonth[months].push(t);
           }
-        } else if(this.getNumberOfFirstDayInMonth(months + 1) === 0){
-          massOfMonth[months].push(1);
+        } else{
+          let t = 0;
+          for(let q = this.getNumberOfFirstDayInMonth(months + 1); q <= 14; q++){
+            t++;
+            massOfMonth[months].push(t);
+          }
         }
       }
-
       // разбиение большого массива месяц на 
       // меньшие массивы которые имеют по 7 элементов
       var longArray = massOfMonth[this.currentPage];
@@ -168,7 +172,6 @@ export default {
     height: 690px;
     position: absolute;
     /*margin: 5% auto auto 5%;*/
-
   }
   .pagination{
     display: grid;
@@ -214,7 +217,6 @@ export default {
     text-align: center;
     padding-top: 3px;
   }
-
   .day{
     border: 1px solid white;
     padding-top: 20px;
@@ -240,8 +242,6 @@ export default {
     height: 700px;
     background-color: white;
   }
-
-
   /*_____ANIMATION______*/
   /*________НАЗАД__________*/
   .prev-enter-active, .prev-leave-active {
@@ -259,9 +259,7 @@ export default {
     transform: translateX(0);
   }
  /*______________________________*/
-
  /*________Вперед________*/
-
 .next-enter-active, .next-leave-active {
     transition: transform 0.5s ease-in-out;
   }
@@ -277,5 +275,4 @@ export default {
     transform: translateX(0);
   }
   /*_______________________________*/
-
 </style>
