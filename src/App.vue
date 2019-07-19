@@ -1,25 +1,24 @@
 <template>
   <div class="all">
-    <div class="allсalendar">
       <div class="pagination">
-        <div @click="prevPage"
-              ><</div> 
+        <div @click="prevPage" class="btn-left"><</div> 
         <p>{{ nameOfOneMonth }} {{ year }}</p>
-        <div @click="nextPage"
-              >></div> 
+        <div @click="nextPage" class="btn-right">></div> 
       </div>
 
-      <div class="calendar">
         <div class="d_nameOfDays">
           <li v-for="day in nameOfDays" class="nameOfDays">{{ day }}</li>
         </div>
-
-        <div v-for="week in getCalendar" class="d_day">
-          <div v-for="day in week" class="day">{{ day }}</div>
+        <transition-group name="fade" >
+          <div v-for="(week, i) in getCalendar" class="d_day" :key = "i">
+            <li v-for="(day, h) in week" class="li_day" :key = "h">
+            <div class="day" 
+               v-bind:class="{ 'grey': isAnotherMonth(i, day), 'currentDay': currentDayOnCalendar(day) }"
+               >{{ day }}</div>
+          </li>
         </div>
-      </div>
-    </div>
-  </div>
+        </transition-group>
+  </div> 
 </template>
 
 <script>
@@ -32,6 +31,7 @@ export default {
       nameOfOneMonth: '',
       nameOfDays: ['Пн', 'Вт', 'Ср', 'Чт', 'Пт', 'Сб', 'Вс'],
       date: new Date(),
+      isActive: true,
       year: ''
     }
   },
@@ -62,6 +62,24 @@ export default {
       this.currentPage++;
       this.nameOfOneMonth = this.namesOfMonths[this.currentPage];
     },
+    isAnotherMonth(weekIndex, dayNumber) {
+      if(weekIndex === 0 && dayNumber > 15) {
+        // первая неделе и номер дня > 15
+        return true
+      }
+      if (weekIndex === 4 && dayNumber < 15) {
+        // последняя неделя и номер дня < 15
+        return true
+      }
+      // день принадлежит текущему месяцу
+      return false
+    },
+    currentDayOnCalendar(dayNumber){
+      if(this.currentPage === this.date.getMonth() && dayNumber === this.date.getDate()){
+        return true
+      }
+      return false
+    },
     getYear(){
       this.year = this.date.getFullYear();
     },
@@ -89,18 +107,18 @@ export default {
             massOfMonth[months].unshift(t)
           }
         }else if(this.getNumberOfFirstDayInMonth(months) === 0){
-          let u = this.getLastDayOfMonth(months-1) + 1;
+          let t = this.getLastDayOfMonth(months-1) + 1;
           for(let nulldays = 0; nulldays <= 5; nulldays++){
-            u--;
-            massOfMonth[months].unshift(u);
+            t--;
+            massOfMonth[months].unshift(t);
           }
         }
         //Заполняем конец каждого месяца числами из будущего месяца
         if(this.getNumberOfFirstDayInMonth(months + 1) > 1){
-          let i = 0;
+          let t = 0;
           for(let q = this.getNumberOfFirstDayInMonth(months + 1); q <= 7; q++){
-            i++;
-            massOfMonth[months].push(i);
+            t++;
+            massOfMonth[months].push(t);
           }
         } else if(this.getNumberOfFirstDayInMonth(months + 1) === 0){
           massOfMonth[months].push(1);
@@ -127,10 +145,71 @@ export default {
   body{
     background-color: #FAFAFA;
   }
-  .allсalendar{
+  .pagination{
+    display: grid;
+    height: 40px;
+    grid-template-columns: 1fr 4fr 1fr;
+    margin: 20px 80% auto 5%;
+    background-color: white;
+  }
+  .btn-left, .btn-right{
+    padding: 10px 10px;
+    height: 20px;
+    font-weight: bold;
+    font-size: 18px;
+  }
+  .btn-left:hover, .btn-right:hover{
+    background-color: #9D9D9D;
+    color: white;
+    cursor: pointer;
+  }
+  .pagination p{
+    text-align: center;
+    font-size: 18px;
+    margin-top: 10px;
+    font-weight: bold;
+  }
+  .d_nameOfDays{
+    display: grid;
+    height: 25px;
+    grid-template-columns: 1fr 1fr 1fr 1fr 1fr 1fr 1fr;
+    margin: 0 80% auto 5%;
+    background-color: #DEDEDE;;
+    list-style-type: none;
+    text-align: center;
+    padding-top: 5px;
+  }
+  .d_day{
+    display: grid;
+    height: 23px;
+    grid-template-columns: 1fr 1fr 1fr 1fr 1fr 1fr 1fr;
+    margin: 0 80% auto 5%;
+    background-color: white;
+    list-style-type: none;
+    text-align: center;
+    padding-top: 3px;
+  }
+  .day{
+    border: 1px solid white;
+  }
+  .day:hover{
+    cursor: pointer;
+    border-radius: 10%;
+    border: 1px solid #BAAAAA;
+  }
+  .grey{
+    color: #BAAAAA;
+  }
+  .currentDay{
+    background: #16B9DE; 
+    border-radius: 10%;
+  }
+
+
+  /*.allсalendar{
     background-color: white;
     margin-left: 30px;
-    margin-right: 1208px
+    margin-right: 80%
   }
   .pagination{
     justify-content: space-between;
@@ -157,6 +236,7 @@ export default {
   .pagination div:hover{
     color: white;
     background-color: #DEDEDE;
+    transition: 1s.
   }
   .pagination p{
     margin: 10px auto 5px auto;
@@ -181,11 +261,20 @@ export default {
   }
   .day{
     font-size: 18px;
+    margin-top: 2px;
+    border: 0.5px solid white;
   }
   .day:hover {
-    background: #16B9DE;
-    color: white;
-    border-radius: 10%;
-
+    /*background: #16B9DE;
+    /*color: white;*/
+    /*border-radius: 10%;
+    border: 0.5px solid #BAAAAA;
   }
+  .grey{
+    color: #BAAAAA;
+  }
+  .currentDay{
+    background: #16B9DE; 
+    border-radius: 10%;
+  }*/
 </style>
