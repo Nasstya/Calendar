@@ -1,5 +1,6 @@
 <template>
   <div class="all">
+    <div class="overflow-div">
       <div class="pagination">
         <div @click="prevPage" class="btn-left"><</div> 
         <p>{{ nameOfOneMonth }} {{ year }}</p>
@@ -9,15 +10,18 @@
         <div class="d_nameOfDays">
           <li v-for="day in nameOfDays" class="nameOfDays">{{ day }}</li>
         </div>
-        <transition-group name="fade" >
-          <div v-for="(week, i) in getCalendar" class="d_day" :key = "i">
-            <li v-for="(day, h) in week" class="li_day" :key = "h">
+        <transition :name="nameOfClass" >
+          <div :key="currentPage" class="fade_wrapper">
+            <div v-for="(week, i) in getCalendar" class="d_day">
+            <li v-for="day in week" class="li_day">
             <div class="day" 
                v-bind:class="{ 'grey': isAnotherMonth(i, day), 'currentDay': currentDayOnCalendar(day) }"
                >{{ day }}</div>
-          </li>
-        </div>
-        </transition-group>
+              </li>
+            </div>
+          </div>
+        </transition>
+    </div>
   </div> 
 </template>
 
@@ -32,7 +36,8 @@ export default {
       nameOfDays: ['Пн', 'Вт', 'Ср', 'Чт', 'Пт', 'Сб', 'Вс'],
       date: new Date(),
       isActive: true,
-      year: ''
+      year: '',
+      nameOfClass: ''
     }
   },
   computed: {
@@ -46,11 +51,15 @@ export default {
     this.nameOfOneMonth = this.namesOfMonths[this.currentPage];
   },
   methods: {
+    // idForSecondLi(id){
+    //   return id = Date.now()++; 
+    // },
     prevPage(){
       if (this.currentPage === 0) {
         this.currentPage = 12;
         this.year--;
       }
+      this.nameOfClass = 'prev';
       this.currentPage--;
       this.nameOfOneMonth = this.namesOfMonths[this.currentPage];
     },
@@ -59,8 +68,10 @@ export default {
         this.currentPage = -1;
         this.year++;
       }
+      this.nameOfClass = 'next';
       this.currentPage++;
       this.nameOfOneMonth = this.namesOfMonths[this.currentPage];
+
     },
     isAnotherMonth(weekIndex, dayNumber) {
       if(weekIndex === 0 && dayNumber > 15) {
@@ -71,11 +82,15 @@ export default {
         // последняя неделя и номер дня < 15
         return true
       }
+      if (weekIndex === 5 && dayNumber < 15) {
+        // последняя неделя и номер дня < 15
+        return true
+      }
       // день принадлежит текущему месяцу
       return false
     },
     currentDayOnCalendar(dayNumber){
-      if(this.currentPage === this.date.getMonth() && dayNumber === this.date.getDate()){
+      if(this.currentPage === this.date.getMonth() && dayNumber === this.date.getDate() && this.year === this.date.getFullYear()){
         return true
       }
       return false
@@ -145,11 +160,18 @@ export default {
   body{
     background-color: #FAFAFA;
   }
+  .overflow-div{
+    overflow: hidden;
+    width: 250px;
+    height: 230px;
+    position: absolute;
+    margin: 5% auto auto 5%;
+
+  }
   .pagination{
     display: grid;
     height: 40px;
     grid-template-columns: 1fr 4fr 1fr;
-    margin: 20px 80% auto 5%;
     background-color: white;
   }
   .btn-left, .btn-right{
@@ -173,7 +195,6 @@ export default {
     display: grid;
     height: 25px;
     grid-template-columns: 1fr 1fr 1fr 1fr 1fr 1fr 1fr;
-    margin: 0 80% auto 5%;
     background-color: #DEDEDE;;
     list-style-type: none;
     text-align: center;
@@ -182,8 +203,8 @@ export default {
   .d_day{
     display: grid;
     height: 23px;
+    width: 100%;
     grid-template-columns: 1fr 1fr 1fr 1fr 1fr 1fr 1fr;
-    margin: 0 80% auto 5%;
     background-color: white;
     list-style-type: none;
     text-align: center;
@@ -204,77 +225,49 @@ export default {
     background: #16B9DE; 
     border-radius: 10%;
   }
-
-
-  /*.allсalendar{
+  .fade_wrapper{
+    overflow: hidden;
+    position: absolute;
+    width: 100%;
+    height: 156px;
     background-color: white;
-    margin-left: 30px;
-    margin-right: 80%
   }
-  .pagination{
-    justify-content: space-between;
+
+
+  /*_____ANIMATION______*/
+  /*________НАЗАД__________*/
+  .prev-enter-active, .prev-leave-active {
+    transition: transform 0.5s ease-in-out;
   }
-  .pagination, .nameOfDays{
-    display: flex;
+  
+  .prev-enter{
+    transform: translateX(-100%);
   }
-  .nameOfDays{
-    font-size: 20px;
+  .prev-leave-to {
+    transform: translateX(100%);
   }
-  .pagination div{
-    width: 30px;
-    height: 30px;
-    padding-top: 8px;
-    margin-bottom: -5px;
-    text-align: center;
-    font-size: 20px;
-    font-weight: bold;
-    cursor: pointer;
+  
+  .prev-enter-to, .prev-leave {
+    transform: translateX(0);
   }
-  .pagination div:active{
-    color: #9D9D9D;
+ /*______________________________*/
+
+ /*________Вперед________*/
+
+.next-enter-active, .next-leave-active {
+    transition: transform 0.5s ease-in-out;
   }
-  .pagination div:hover{
-    color: white;
-    background-color: #DEDEDE;
-    transition: 1s.
+  
+  .next-enter{
+    transform: translateX(100%);
   }
-  .pagination p{
-    margin: 10px auto 5px auto;
-    text-align: center;
-    font-weight: bold;
-    font-size: 18px;
+  .next-leave-to {
+    transform: translateX(-100%);
   }
-  .d_nameOfDays{
-    margin: 5px auto 5px auto;
-    padding-left: 10px;
-    background-color: #DEDEDE;
-    
+  
+  .next-enter-to, .next-leave {
+    transform: translateX(0);
   }
-  .nameOfDays, .day{
-    list-style-type: none;
-    text-align: center;
-    cursor: pointer;
-  }
-  .d_day, .d_nameOfDays{
-    display: grid;
-    grid-template-columns: 1fr 1fr 1fr 1fr 1fr 1fr 1fr;
-  }
-  .day{
-    font-size: 18px;
-    margin-top: 2px;
-    border: 0.5px solid white;
-  }
-  .day:hover {
-    /*background: #16B9DE;
-    /*color: white;*/
-    /*border-radius: 10%;
-    border: 0.5px solid #BAAAAA;
-  }
-  .grey{
-    color: #BAAAAA;
-  }
-  .currentDay{
-    background: #16B9DE; 
-    border-radius: 10%;
-  }*/
+  /*_______________________________*/
+
 </style>
