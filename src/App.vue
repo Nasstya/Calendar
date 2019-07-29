@@ -17,15 +17,21 @@
             <div class="day" 
                v-bind:class="{ 'grey': isAnotherMonth(i, day), 'currentDay': currentDayOnCalendar(day) }"
                >{{ day }}</div>
-              </li>
+            </li>
             </div>
           </div>
         </transition>
     </div>
+<!--     <div class="test">
+      <ul>
+        <li v-for="(event, index) in eventsData">{{ event.id }}</li>
+      </ul>
+    </div> -->
   </div> 
 </template>
 
 <script>
+  // import link from './Calendar_data.json';
 export default {
   data(){
     return{
@@ -36,8 +42,16 @@ export default {
       date: new Date(),
       isActive: true,
       year: '',
-      nameOfClass: ''
+      nameOfClass: '',
+      eventsData: []
     }
+  },
+  created: function(){
+    fetch('src/Calendar_data.json')
+    .then(response => response.json())
+    .then(data => (
+      this.eventsData = data
+      ));
   },
   computed: {
     getCalendar(){
@@ -104,13 +118,32 @@ export default {
       let dateFirstDayInMonth = new Date(this.year, month, 1);
       return dateFirstDayInMonth.getDay();
     },
+    // getDayOfEvent(){
+    //   let v = this.eventsData.events.starts_at;
+    //   let d = new Date(v);
+    //   d.getDate();
+    // },
     buildCalendar(){
       let massOfMonth = [];
+      let massOfEvents = this.eventsData.events;
+      console.log(massOfEvents)
       for (let months = 0; months < 12; months++){
         massOfMonth.push(months);
         massOfMonth[months] = [];
         for ( let daysInMonth = 1; daysInMonth <= this.getLastDayOfMonth(months); daysInMonth++){
           massOfMonth[months].push(daysInMonth);
+          // massOfMonth[months][daysInMonth] = [];
+          // for(let m = 0; m <=8; m++){
+          //   let v = massOfEvents[m].starts_at;
+          //   let d = new Date(v);
+          //   // if(daysInMonth === d.getDate()){
+          //   //  massOfMonth[months][daysInMonth].push(this.eventsData.events[m].memo)
+          //    console.log(d);
+          //    console.log(v);
+          //    console.log(m);
+
+          //   // }
+          // }
         }
         // Заполняем начало каждого месяца числами из прошлого месяца
         if(this.getNumberOfFirstDayInMonth(months) > 0){
@@ -241,6 +274,15 @@ export default {
     width: 100%;
     height: 700px;
     background-color: white;
+  }
+
+
+  .test{
+    position: relative;
+    top: 800px;
+    height: 300px;
+    width: 99%;
+    border: 1px solid black;
   }
   /*_____ANIMATION______*/
   /*________НАЗАД__________*/
