@@ -31,7 +31,7 @@
 </template>
 
 <script>
-  // import link from './Calendar_data.json';
+  import link from './Calendar_data.json';
 export default {
   data(){
     return{
@@ -43,12 +43,17 @@ export default {
       isActive: true,
       year: '',
       nameOfClass: '',
-      eventsData: []
+      eventsData: {}
     }
   },
   created: function(){
-    fetch('src/Calendar_data.json')
-    .then(response => response.json())
+    fetch(link, {
+      headers : { 
+        'Content-Type': 'application/json',
+        'Accept': 'application/json'
+       }
+    })
+    // .then(response => response.json())
     .then(data => (
       this.eventsData = data
       ));
@@ -64,9 +69,6 @@ export default {
     this.nameOfOneMonth = this.namesOfMonths[this.currentPage];
   },
   methods: {
-    // idForSecondLi(id){
-    //   return id = Date.now()++; 
-    // },
     prevPage(){
       if (this.currentPage === 0) {
         this.currentPage = 12;
@@ -102,7 +104,9 @@ export default {
       return false
     },
     currentDayOnCalendar(dayNumber){
-      if(this.currentPage === this.date.getMonth() && dayNumber === this.date.getDate() && this.year === this.date.getFullYear()){
+      if(this.currentPage === this.date.getMonth() && 
+        dayNumber === this.date.getDate() && 
+        this.year === this.date.getFullYear()){
         return true
       }
       return false
@@ -118,32 +122,28 @@ export default {
       let dateFirstDayInMonth = new Date(this.year, month, 1);
       return dateFirstDayInMonth.getDay();
     },
-    // getDayOfEvent(){
-    //   let v = this.eventsData.events.starts_at;
-    //   let d = new Date(v);
-    //   d.getDate();
-    // },
     buildCalendar(){
       let massOfMonth = [];
       let massOfEvents = this.eventsData.events;
-      console.log(massOfEvents)
+      if(massOfEvents){
+      // console.log(massOfEvents[1])
       for (let months = 0; months < 12; months++){
         massOfMonth.push(months);
         massOfMonth[months] = [];
         for ( let daysInMonth = 1; daysInMonth <= this.getLastDayOfMonth(months); daysInMonth++){
           massOfMonth[months].push(daysInMonth);
-          // massOfMonth[months][daysInMonth] = [];
-          // for(let m = 0; m <=8; m++){
-          //   let v = massOfEvents[m].starts_at;
-          //   let d = new Date(v);
-          //   // if(daysInMonth === d.getDate()){
-          //   //  massOfMonth[months][daysInMonth].push(this.eventsData.events[m].memo)
-          //    console.log(d);
-          //    console.log(v);
-          //    console.log(m);
-
-          //   // }
-          // }
+          massOfMonth[months][daysInMonth] = [];
+          for(let m = 0; m <=massOfEvents.length; m++){
+            // let v = massOfEvents[m].starts_at;
+            // let d = new Date(v);
+            // // if(daysInMonth === d.getDate()){
+            // //  massOfMonth[months][daysInMonth].push(this.eventsData.events[m].memo)
+            //  console.log(d);
+            //  console.log(v);
+             console.log(m);
+           
+            
+          }
         }
         // Заполняем начало каждого месяца числами из прошлого месяца
         if(this.getNumberOfFirstDayInMonth(months) > 0){
@@ -188,6 +188,7 @@ export default {
           }, longArray.slice());
        //--------------------------------------------------   
         return newArray; // вывод самого календаря
+}
     }
   }
 };
