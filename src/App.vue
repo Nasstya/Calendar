@@ -43,16 +43,11 @@ export default {
       isActive: true,
       year: '',
       nameOfClass: '',
-      eventsData: {}
+      eventsData: []
     }
   },
   created: function(){
-    fetch(link, {
-      headers : { 
-        'Content-Type': 'application/json',
-        'Accept': 'application/json'
-       }
-    })
+    fetch(link)
     // .then(response => response.json())
     .then(data => (
       this.eventsData = data
@@ -125,25 +120,19 @@ export default {
     buildCalendar(){
       let massOfMonth = [];
       let massOfEvents = this.eventsData.events;
-      if(massOfEvents){
-      // console.log(massOfEvents[1])
       for (let months = 0; months < 12; months++){
         massOfMonth.push(months);
         massOfMonth[months] = [];
         for ( let daysInMonth = 1; daysInMonth <= this.getLastDayOfMonth(months); daysInMonth++){
           massOfMonth[months].push(daysInMonth);
           massOfMonth[months][daysInMonth] = [];
+          // if(massOfEvents){
           for(let m = 0; m <=massOfEvents.length; m++){
-            // let v = massOfEvents[m].starts_at;
-            // let d = new Date(v);
-            // // if(daysInMonth === d.getDate()){
-            // //  massOfMonth[months][daysInMonth].push(this.eventsData.events[m].memo)
-            //  console.log(d);
-            //  console.log(v);
-             console.log(m);
-           
-            
+            let v = massOfEvents[m].starts_at;
+            let d = new Date(v);
+            console.log(m)
           }
+        // }
         }
         // Заполняем начало каждого месяца числами из прошлого месяца
         if(this.getNumberOfFirstDayInMonth(months) > 0){
@@ -188,7 +177,6 @@ export default {
           }, longArray.slice());
        //--------------------------------------------------   
         return newArray; // вывод самого календаря
-}
     }
   }
 };
