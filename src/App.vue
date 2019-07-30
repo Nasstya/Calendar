@@ -12,7 +12,7 @@
         </div>
         <transition :name="nameOfClass" >
           <div :key="currentPage" class="fade_wrapper">
-            <div v-for="(week, i) in getCalendar" class="d_day">
+            <div v-for="(week, i) in processedEvents" class="d_day">
             <li v-for="day in week" class="li_day">
             <div class="day" 
                v-bind:class="{ 'grey': isAnotherMonth(i, day), 'currentDay': currentDayOnCalendar(day) }"
@@ -43,7 +43,8 @@ export default {
       isActive: true,
       year: '',
       nameOfClass: '',
-      eventsData: []
+      eventsData: [],
+      processedEvents: []
     }
   },
   created: function(){
@@ -177,6 +178,7 @@ export default {
           }, longArray.slice());
        //--------------------------------------------------   
         return newArray; // вывод самого календаря
+        this.processedEvents = newArray;
     }
   }
 };
