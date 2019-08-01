@@ -12,26 +12,24 @@
         </div>
         <transition :name="nameOfClass" >
           <div :key="currentPage" class="fade_wrapper">
-            <div v-for="(week, i) in processedEvents" class="d_day">
+            <div v-for="(week, i) in getCalendar" class="d_day">
             <li v-for="day in week" class="li_day">
-            <div class="day" 
-               v-bind:class="{ 'grey': isAnotherMonth(i, day), 'currentDay': currentDayOnCalendar(day) }"
-               >{{ day }}</div>
-            </li>
+            <div class="day" v-bind:class="{ 'grey': isAnotherMonth(i, day), 'currentDay': currentDayOnCalendar(day) }">
+              {{day}}
+            </div>
+              </li>
             </div>
           </div>
         </transition>
     </div>
 <!--     <div class="test">
-      <ul>
-        <li v-for="(event, index) in eventsData">{{ event.id }}</li>
-      </ul>
+        <div v-for="data in eventsData">{{data.types}}</div>
     </div> -->
   </div> 
 </template>
 
 <script>
-  import link from './Calendar_data.json';
+  import json from './Calendar_data.json'
 export default {
   data(){
     return{
@@ -43,16 +41,8 @@ export default {
       isActive: true,
       year: '',
       nameOfClass: '',
-      eventsData: [],
-      processedEvents: []
+      eventsData: json
     }
-  },
-  created: function(){
-    fetch(link)
-    // .then(response => response.json())
-    .then(data => (
-      this.eventsData = data
-      ));
   },
   computed: {
     getCalendar(){
@@ -119,21 +109,45 @@ export default {
       return dateFirstDayInMonth.getDay();
     },
     buildCalendar(){
+      let arrOfEvents = this.eventsData.events;
       let massOfMonth = [];
-      let massOfEvents = this.eventsData.events;
       for (let months = 0; months < 12; months++){
         massOfMonth.push(months);
         massOfMonth[months] = [];
-        for ( let daysInMonth = 1; daysInMonth <= this.getLastDayOfMonth(months); daysInMonth++){
-          massOfMonth[months].push(daysInMonth);
+        for ( let daysInMonth = 0; daysInMonth < this.getLastDayOfMonth(months); daysInMonth++){
           massOfMonth[months][daysInMonth] = [];
-          // if(massOfEvents){
-          for(let m = 0; m <=massOfEvents.length; m++){
-            let v = massOfEvents[m].starts_at;
-            let d = new Date(v);
-            console.log(m)
+          massOfMonth[months][daysInMonth].push(daysInMonth + 1)
+          for(let z = 0; z < arrOfEvents.length; z++){
+            let dataStartOfEvent = arrOfEvents[z].starts_at;
+            let getStartDataOfEvent = new Date(dataStartOfEvent);
+
+            let dataEndOfEvent = arrOfEvents[z].ends_at;
+            let getEndDataOfEvent = new Date(dataEndOfEvent);
+
+            let memo = arrOfEvents[z].memo;
+              if(getStartDataOfEvent.getDate() == getEndDataOfEvent.getDate()){
+                if(daysInMonth == getStartDataOfEvent.getDate() &&
+                  this.currentPage == getStartDataOfEvent.getMonth() &&
+                  this.year == getStartDataOfEvent.getFullYear()){
+                  massOfMonth[months][daysInMonth - 1].push(memo)
+                }
+              }else if(getStartDataOfEvent.getDate() != getEndDataOfEvent.getDate()){
+                for(let b = getStartDataOfEvent.getDate() - 1; b <= this.getLastDayOfMonth(getStartDataOfEvent.getMonth()); b++){
+                  if(daysInMonth === b &&
+                  this.currentPage == getStartDataOfEvent.getMonth() &&
+                  this.year == getStartDataOfEvent.getFullYear()){
+                    massOfMonth[months][daysInMonth].push(memo);
+                  }
+                }
+                for(let b = 0; b < getEndDataOfEvent.getDate(); b++){
+                  if(daysInMonth === b &&
+                  this.currentPage == getEndDataOfEvent.getMonth() &&
+                  this.year == getEndDataOfEvent.getFullYear()){
+                     massOfMonth[months][daysInMonth].push(memo);
+                  }
+                }
+              }
           }
-        // }
         }
         // Заполняем начало каждого месяца числами из прошлого месяца
         if(this.getNumberOfFirstDayInMonth(months) > 0){
@@ -149,6 +163,7 @@ export default {
             massOfMonth[months].unshift(t);
           }
         }
+
         //Заполняем конец каждого месяца числами из будущего месяца
         if((this.getNumberOfFirstDayInMonth(months) === 0 || 
           this.getNumberOfFirstDayInMonth(months) === 6) &&
@@ -167,6 +182,7 @@ export default {
           }
         }
       }
+      // console.log(this.eventsData.events[1].starts_at)
       // разбиение большого массива месяц на 
       // меньшие массивы которые имеют по 7 элементов
       var longArray = massOfMonth[this.currentPage];
@@ -178,7 +194,6 @@ export default {
           }, longArray.slice());
        //--------------------------------------------------   
         return newArray; // вывод самого календаря
-        this.processedEvents = newArray;
     }
   }
 };
@@ -245,7 +260,9 @@ export default {
     border: 1px solid white;
     padding-top: 20px;
     height: 60px;
-    font-size: 40px;
+    font-size: 20px;
+    display: flex;
+    flex-direction: column;
   }
   .day:hover{
     cursor: pointer;
@@ -266,14 +283,9 @@ export default {
     height: 700px;
     background-color: white;
   }
-
-
   .test{
     position: relative;
-    top: 800px;
-    height: 300px;
-    width: 99%;
-    border: 1px solid black;
+    top: 600px;
   }
   /*_____ANIMATION______*/
   /*________НАЗАД__________*/
