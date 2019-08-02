@@ -1,4 +1,4 @@
-<template>
+ <template>
   <div class="all">
     <div class="overflow-div">
       <div class="pagination">
@@ -14,17 +14,14 @@
           <div :key="currentPage" class="fade_wrapper">
             <div v-for="(week, i) in getCalendar" class="d_day">
             <li v-for="day in week" class="li_day">
-            <div class="day" v-bind:class="{ 'grey': isAnotherMonth(i, day), 'currentDay': currentDayOnCalendar(day) }">
-              {{day}}
-            </div>
+            <div class="day" 
+                 v-bind:class="{ 'grey': isAnotherMonth(i, day), 'currentDay': currentDayOnCalendar(day), 'red': weekEndDayFunction(day) }" 
+                 v-html="[].concat(day).join('<br>')"></div>
               </li>
             </div>
           </div>
         </transition>
     </div>
-<!--     <div class="test">
-        <div v-for="data in eventsData">{{data.types}}</div>
-    </div> -->
   </div> 
 </template>
 
@@ -91,11 +88,18 @@ export default {
     },
     currentDayOnCalendar(dayNumber){
       if(this.currentPage === this.date.getMonth() && 
-        dayNumber === this.date.getDate() && 
+        dayNumber[0] === this.date.getDate() && 
         this.year === this.date.getFullYear()){
         return true
       }
       return false
+    },    
+    weekEndDayFunction(dayNumber){
+      let dataOfWeekEnd;
+      dataOfWeekEnd = new Date(this.year, this.currentPage, dayNumber[0]);
+      if(dataOfWeekEnd.getDay() === 6 || dataOfWeekEnd.getDay() === 0){
+        return true;
+      }
     },
     getYear(){
       this.year = this.date.getFullYear();
@@ -120,10 +124,8 @@ export default {
           for(let z = 0; z < arrOfEvents.length; z++){
             let dataStartOfEvent = arrOfEvents[z].starts_at;
             let getStartDataOfEvent = new Date(dataStartOfEvent);
-
             let dataEndOfEvent = arrOfEvents[z].ends_at;
             let getEndDataOfEvent = new Date(dataEndOfEvent);
-
             let memo = arrOfEvents[z].memo;
               if(getStartDataOfEvent.getDate() == getEndDataOfEvent.getDate()){
                 if(daysInMonth == getStartDataOfEvent.getDate() &&
@@ -163,7 +165,6 @@ export default {
             massOfMonth[months].unshift(t);
           }
         }
-
         //Заполняем конец каждого месяца числами из будущего месяца
         if((this.getNumberOfFirstDayInMonth(months) === 0 || 
           this.getNumberOfFirstDayInMonth(months) === 6) &&
@@ -182,12 +183,11 @@ export default {
           }
         }
       }
-      // console.log(this.eventsData.events[1].starts_at)
       // разбиение большого массива месяц на 
       // меньшие массивы которые имеют по 7 элементов
       var longArray = massOfMonth[this.currentPage];
       var size = 7;
-      
+
       var newArray = new Array(Math.ceil(longArray.length / size)).fill("")
           .map(function() { 
             return this.splice(0, size) 
@@ -275,6 +275,9 @@ export default {
   .currentDay{
     background: #16B9DE; 
     border-radius: 10%;
+  }
+  .red{
+    color: red;
   }
   .fade_wrapper{
     overflow: hidden;
