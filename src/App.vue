@@ -15,7 +15,10 @@
             <div v-for="(week, i) in getCalendar" class="d_day">
             <li v-for="day in week" class="li_day">
             <div class="day" 
-                 v-bind:class="{ 'grey': isAnotherMonth(i, day), 'currentDay': currentDayOnCalendar(day), 'red': weekEndDayFunction(day) }" 
+                 v-bind:class="{  'grey': isAnotherMonth(i, day), 
+                                  'currentDay': currentDayOnCalendar(day), 
+                                  'red': weekEndDayFunction(day), 
+                                  'longEvent': longEvent(day) }" 
                  v-html="[].concat(day).join('<br>')"></div>
               </li>
             </div>
@@ -42,6 +45,9 @@ export default {
     }
   },
   computed: {
+    getExample(){
+      return console.log(this.longEvent());
+    },
     getCalendar(){
       return this.buildCalendar();
     }
@@ -95,10 +101,25 @@ export default {
       return false
     },    
     weekEndDayFunction(dayNumber){
-      let dataOfWeekEnd;
-      dataOfWeekEnd = new Date(this.year, this.currentPage, dayNumber[0]);
+      let dataOfWeekEnd = new Date(this.year, this.currentPage, dayNumber[0]);
       if(dataOfWeekEnd.getDay() === 6 || dataOfWeekEnd.getDay() === 0){
         return true;
+      }
+    },
+    longEvent(dayNumber){
+      let arrOfEvents = this.eventsData.events;
+      for(let z = 0; z < arrOfEvents.length; z++){
+        let dataStartOfEvent = arrOfEvents[z].starts_at;
+        let getStartDataOfEvent = new Date(dataStartOfEvent);
+        let dataEndOfEvent = arrOfEvents[z].ends_at;
+        let getEndDataOfEvent = new Date(dataEndOfEvent);
+        if(getStartDataOfEvent.getDate() != getEndDataOfEvent.getDate()){
+          if((dayNumber[0] >= getStartDataOfEvent.getDate() && dayNumber[0] <= getEndDataOfEvent.getDate()) &&
+            this.year === getStartDataOfEvent.getFullYear() && 
+            (this.currentPage >= getStartDataOfEvent.getMonth() && this.currentPage <= getEndDataOfEvent.getMonth()) ){
+            return true;
+          }
+        }
       }
     },
     getYear(){
@@ -208,9 +229,8 @@ export default {
   .overflow-div{
     overflow: hidden;
     width: 100%;
-    height: 690px;
+    height: 720px;
     position: absolute;
-    /*margin: 5% auto auto 5%;*/
   }
   .pagination{
     display: grid;
@@ -248,25 +268,24 @@ export default {
   }
   .d_day{
     display: grid;
-    height: 81px;
+    height: 93.5px;
     width: 100%;
     grid-template-columns: 1fr 1fr 1fr 1fr 1fr 1fr 1fr;
     background-color: white;
     list-style-type: none;
     text-align: center;
-    padding-top: 3px;
   }
   .day{
-    border: 1px solid white;
-    padding-top: 20px;
-    height: 60px;
+    border: 1px solid #E0D0D0;
+    /*padding-top: 30px;*/
+    height: 93px;
     font-size: 20px;
     display: flex;
     flex-direction: column;
+    justify-content: center;
   }
   .day:hover{
     cursor: pointer;
-    border-radius: 10%;
     border: 1px solid #BAAAAA;
   }
   .grey{
@@ -274,10 +293,12 @@ export default {
   }
   .currentDay{
     background: #16B9DE; 
-    border-radius: 10%;
   }
   .red{
     color: red;
+  }
+  .longEvent{
+    background-color: yellow;
   }
   .fade_wrapper{
     overflow: hidden;
@@ -285,10 +306,6 @@ export default {
     width: 100%;
     height: 700px;
     background-color: white;
-  }
-  .test{
-    position: relative;
-    top: 600px;
   }
   /*_____ANIMATION______*/
   /*________НАЗАД__________*/
