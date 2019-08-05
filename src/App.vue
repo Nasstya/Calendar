@@ -113,10 +113,19 @@ export default {
         let getStartDataOfEvent = new Date(dataStartOfEvent);
         let dataEndOfEvent = arrOfEvents[z].ends_at;
         let getEndDataOfEvent = new Date(dataEndOfEvent);
-        if(getStartDataOfEvent.getDate() != getEndDataOfEvent.getDate()){
-          if((dayNumber[0] >= getStartDataOfEvent.getDate() && dayNumber[0] <= getEndDataOfEvent.getDate()) &&
-            this.year === getStartDataOfEvent.getFullYear() && 
-            (this.currentPage >= getStartDataOfEvent.getMonth() && this.currentPage <= getEndDataOfEvent.getMonth()) ){
+        if(getStartDataOfEvent.getMonth() != getEndDataOfEvent.getMonth()){
+          if((dayNumber[0] >= getStartDataOfEvent.getDate() && dayNumber[0] <= this.getLastDayOfMonth(getStartDataOfEvent.getMonth())) &&
+            this.currentPage === getStartDataOfEvent.getMonth() &&
+            this.year === getStartDataOfEvent.getFullYear()){
+            return true;
+          }else if(dayNumber[0] >= 1 && dayNumber[0] <= getEndDataOfEvent.getDate() &&
+            this.currentPage === getEndDataOfEvent.getMonth() &&
+            this.year === getEndDataOfEvent.getFullYear()){
+            return true;
+          }
+        }else if(getStartDataOfEvent.getMonth() === getEndDataOfEvent.getMonth() && 
+          getStartDataOfEvent.getDate() != getEndDataOfEvent.getDate()){
+          if(dayNumber[0] >= getStartDataOfEvent.getDate() && dayNumber[0] <= getEndDataOfEvent.getDate()){
             return true;
           }
         }
@@ -298,7 +307,7 @@ export default {
     color: red;
   }
   .longEvent{
-    background-color: yellow;
+    background-color: #FFDD4A;
   }
   .fade_wrapper{
     overflow: hidden;
