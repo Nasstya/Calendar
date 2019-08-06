@@ -1,4 +1,4 @@
- <template>
+<template>
   <div class="all">
     <div class="overflow-div">
       <div class="pagination">
@@ -13,17 +13,48 @@
         <transition :name="nameOfClass" >
           <div :key="currentPage" class="fade_wrapper">
             <div v-for="(week, i) in getCalendar" class="d_day">
-            <li v-for="day in week" class="li_day">
+            <li v-for="day in week" 
+                class="li_day"
+                v-bind:class="{   'currentDay': currentDayOnCalendar(day), 
+                                  'longEvent': longEvent(day) }" >
+            <img  src="src/assets/question.png" 
+                  width="14px" 
+                  height="14px" 
+                  v-show="addButtonToDay(day)"
+                  v-on:click="detailEvent(day)">  
+            <img  src="src/assets/plus.png" 
+                  width="16px" 
+                  height="16px"
+                  v-show="addPlus(i, day)" 
+                  v-on:click="openAddEvent(day)">    
             <div class="day" 
                  v-bind:class="{  'grey': isAnotherMonth(i, day), 
                                   'currentDay': currentDayOnCalendar(day), 
                                   'red': weekEndDayFunction(day), 
                                   'longEvent': longEvent(day) }" 
                  v-html="[].concat(day).join('<br>')"></div>
-              </li>
-            </div>
+            <img  src="src/assets/delete.png" 
+                  v-show="addButtonToDay(day)" 
+                  width="15px" 
+                  height="15px"
+                  v-on:click="deleteEvent(day)">
+            </li>
           </div>
-        </transition>
+        </div>
+      </transition>
+    </div>
+    <div v-show="modalWindowDetail" class="underModalWindow">
+      <div class="modalWindow">
+         <div v-for="(key, name) in detailInformationOfEvent">{{ name }}: {{ key }}</div>  
+         <button v-on:click="modalWindowDetail = false">Окей</button>
+      </div>
+    </div>
+    <div v-show="modalWindowAdd" class="underModalWindow">
+      <div class="modalWindow">
+        <div>Укажите событие которое хотите добавить на выбраную вами дату.</div>
+        <input type="text" placeholder="Место для вашего события" v-model="inputInAddEvent">
+        <button v-on:click="addEvent(inputInAddEvent)">Окейs</button>
+      </div>
     </div>
   </div> 
 </template>
@@ -41,7 +72,13 @@ export default {
       isActive: true,
       year: '',
       nameOfClass: '',
-      eventsData: json
+      eventsData: json,
+      modalWindowDetail: false,
+      modalWindowAdd: false,
+      memo: '',
+      dayWhenAddEvent: Number,
+      inputInAddEvent: '',
+      detailInformationOfEvent: {}
     }
   },
   computed: {
@@ -92,6 +129,28 @@ export default {
       // день принадлежит текущему месяцу
       return false
     },
+    addPlus(weekIndex, dayNumber) {
+      if(weekIndex === 0 && dayNumber > 15) {
+        // первая неделе и номер дня > 15
+        return false
+      }
+      if (weekIndex === 4 && dayNumber < 15) {
+        // последняя неделя и номер дня < 15
+        return false
+      }
+      if (weekIndex === 5 && dayNumber < 15) {
+        // последняя неделя и номер дня < 15
+        return false
+      }if(this.currentPage > this.date.getMonth()){
+        return true;
+      }if(dayNumber[0] >= this.date.getDate() &&
+        this.currentPage >= this.date.getMonth()){
+        return true;
+      }
+
+      // день принадлежит текущему месяцу
+      // return true
+    },
     currentDayOnCalendar(dayNumber){
       if(this.currentPage === this.date.getMonth() && 
         dayNumber[0] === this.date.getDate() && 
@@ -130,6 +189,87 @@ export default {
           }
         }
       }
+    },
+    addButtonToDay(dayNumber){
+      let arrOfEvents = this.eventsData.events;
+      for(let z = 0; z < arrOfEvents.length; z++){
+        let dataStartOfEvent = arrOfEvents[z].starts_at;
+        let getStartDataOfEvent = new Date(dataStartOfEvent);
+        let dataEndOfEvent = arrOfEvents[z].ends_at;
+        let getEndDataOfEvent = new Date(dataEndOfEvent);
+        if(getStartDataOfEvent.getMonth() != getEndDataOfEvent.getMonth()){
+          if((dayNumber[0] >= getStartDataOfEvent.getDate() && dayNumber[0] <= this.getLastDayOfMonth(getStartDataOfEvent.getMonth())) &&
+            this.currentPage === getStartDataOfEvent.getMonth() &&
+            this.year === getStartDataOfEvent.getFullYear()){
+            return true;
+          }else if(dayNumber[0] >= 1 && dayNumber[0] <= getEndDataOfEvent.getDate() &&
+            this.currentPage === getEndDataOfEvent.getMonth() &&
+            this.year === getEndDataOfEvent.getFullYear()){
+            return true;
+          }
+        }else if(getStartDataOfEvent.getMonth() === getEndDataOfEvent.getMonth() && 
+          getStartDataOfEvent.getDate() != getEndDataOfEvent.getDate()){
+          if(dayNumber[0] >= getStartDataOfEvent.getDate() && dayNumber[0] <= getEndDataOfEvent.getDate()){
+            return true;
+          }
+        }else if(getStartDataOfEvent.getMonth() === getEndDataOfEvent.getMonth() && 
+          getStartDataOfEvent.getDate() === getEndDataOfEvent.getDate()){
+          if((dayNumber[0] === getStartDataOfEvent.getDate() && dayNumber[0] === getEndDataOfEvent.getDate()) &&
+            (this.currentPage === getStartDataOfEvent.getMonth() && this.currentPage === getEndDataOfEvent.getMonth())){
+            return true;
+          }
+        }
+      }
+    },
+    deleteEvent(dayNumber){
+      let arrOfEvents = this.eventsData.events;
+      let definiteEvent = new Date(this.year, this.currentPage, dayNumber[0]);
+      for(let z = 0; z < arrOfEvents.length; z++){
+        let dataStartOfEvent = arrOfEvents[z].starts_at;
+        let getStartDataOfEvent = new Date(dataStartOfEvent);
+        let dataEndOfEvent = arrOfEvents[z].ends_at;
+        let getEndDataOfEvent = new Date(dataEndOfEvent);
+        if(definiteEvent.setHours(0) >= getStartDataOfEvent.setHours(0) && 
+            definiteEvent.setHours(0) <= getEndDataOfEvent.setHours(0)){
+          arrOfEvents.splice(z, 1);
+        }else if(definiteEvent.getDate() >= getStartDataOfEvent.getDate() && 
+                definiteEvent.getDate() <= getEndDataOfEvent.getDate()){
+          arrOfEvents.splice(z, 1);
+        }
+     }
+    },
+    detailEvent(dayNumber){
+      this.modalWindowDetail = true;
+      for(let q = 1; q <= dayNumber.length; q++){
+        this.memo = dayNumber[q];
+        let arrOfEvents = this.eventsData.events;
+        for(let z = 0; z < arrOfEvents.length; z++){
+          let memoInJSON = arrOfEvents[z].memo;
+          if(this.memo === memoInJSON){
+            this.detailInformationOfEvent = {
+              'Cобытие': this.memo,
+              'Начало события': arrOfEvents[z].starts_at,
+              'Конец события': arrOfEvents[z].ends_at
+            }
+          }
+        }
+      }
+    },
+    openAddEvent(dayNumber){
+      this.modalWindowAdd = true;
+      this.dayWhenAddEvent = dayNumber;
+    },
+    addEvent(text){
+      this.modalWindowAdd = false;
+      let arrOfEvents = this.eventsData.events;
+      let eventInformAdd = {
+        "id": Date.now(),
+        "starts_at": new Date(this.year, this.currentPage, this.dayWhenAddEvent[0]),
+        "ends_at": new Date(this.year, this.currentPage, this.dayWhenAddEvent[0]),
+        "memo": text
+      }
+      arrOfEvents.push(eventInformAdd);
+      this.dayWhenAddEvent.push(text);
     },
     getYear(){
       this.year = this.date.getFullYear();
@@ -217,7 +357,6 @@ export default {
       // меньшие массивы которые имеют по 7 элементов
       var longArray = massOfMonth[this.currentPage];
       var size = 7;
-
       var newArray = new Array(Math.ceil(longArray.length / size)).fill("")
           .map(function() { 
             return this.splice(0, size) 
@@ -285,15 +424,14 @@ export default {
     text-align: center;
   }
   .day{
-    border: 1px solid #E0D0D0;
-    /*padding-top: 30px;*/
     height: 93px;
     font-size: 20px;
     display: flex;
     flex-direction: column;
     justify-content: center;
+    margin: 0px auto 0px auto;
   }
-  .day:hover{
+  .li_day:hover{
     cursor: pointer;
     border: 1px solid #BAAAAA;
   }
@@ -316,6 +454,42 @@ export default {
     height: 700px;
     background-color: white;
   }
+  .li_day{
+    display: flex;
+    justify-content: space-between;
+    border: 1px solid #E0D0D0;
+  }
+  /*______ModalWindow*/
+  .underModalWindow{
+    width: 100%;
+    height: 720px;
+    background: rgba(0,0,0, 0.5);
+    position: relative;
+  }
+  .modalWindow{
+    position: relative;
+    background-color: white;
+    width: 400px;
+    height: 200px;
+    top: 200px;
+    left: 550px;
+    display: flex;
+    flex-direction: column;
+    justify-content: center;
+    opacity: 2;
+  }
+  .modalWindow div{
+    width: 60%;
+    margin: 0 auto 20px;
+    height: 30px;
+    text-align: center;  
+  }
+  .modalWindow button{
+    width: 150px;
+    margin: 0 auto 20px;
+    height: 30px;
+  }
+
   /*_____ANIMATION______*/
   /*________НАЗАД__________*/
   .prev-enter-active, .prev-leave-active {
