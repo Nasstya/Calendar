@@ -43,17 +43,22 @@
         </div>
       </transition>
     </div>
-    <div v-show="modalWindowDetail" class="underModalWindow">
+    <div v-show="detailInformationOfEvent" class="underModalWindow">
       <div class="modalWindow">
-         <div v-for="(key, name) in detailInformationOfEvent">{{ name }}: {{ key }}</div>  
-         <button v-on:click="modalWindowDetail = false">Окей</button>
+          <img src="src/assets/x.png" width="20px" height="20px" v-on:click="detailInformationOfEvents.splice(0, detailInformationOfEvents.length)">
+          <div v-for="(key, name) in detailInformationOfEvent">{{ name }}: {{ key }}</div>
+          <button  v-on:click="detailInformationOfEvents.shift()" 
+                  v-if="detailInformationOfEvents.length > 1">Следующее событие</button>
+          <button  v-on:click="detailInformationOfEvents.shift()" 
+                   v-else>Okey</button>
       </div>
     </div>
     <div v-show="modalWindowAdd" class="underModalWindow">
-      <div class="modalWindow">
-        <div>Укажите событие которое хотите добавить на выбраную вами дату.</div>
+      <div class="modalWindow modalWindowAdd">
+        <img src="src/assets/x.png" width="20px" height="20px" v-on:click="modalWindowAdd = false">
+        <div class="modalWindow_order">Укажите событие которое хотите добавить на выбраную вами дату.</div>
         <input type="text" placeholder="Место для вашего события" v-model="inputInAddEvent">
-        <button v-on:click="addEvent(inputInAddEvent)">Окейs</button>
+        <button v-on:click="addEvent(inputInAddEvent)">Добавить</button>
       </div>
     </div>
   </div> 
@@ -73,20 +78,20 @@ export default {
       year: '',
       nameOfClass: '',
       eventsData: json,
-      modalWindowDetail: false,
+      // modalWindowDetail: false,
       modalWindowAdd: false,
       memo: '',
       dayWhenAddEvent: Number,
       inputInAddEvent: '',
-      detailInformationOfEvent: {}
+      detailInformationOfEvents: []
     }
   },
   computed: {
-    getExample(){
-      return console.log(this.longEvent());
-    },
     getCalendar(){
       return this.buildCalendar();
+    },
+    detailInformationOfEvent(){
+      return this.detailInformationOfEvents[0];
     }
   },
   mounted(){
@@ -239,18 +244,21 @@ export default {
      }
     },
     detailEvent(dayNumber){
-      this.modalWindowDetail = true;
       for(let q = 1; q <= dayNumber.length; q++){
         this.memo = dayNumber[q];
         let arrOfEvents = this.eventsData.events;
         for(let z = 0; z < arrOfEvents.length; z++){
           let memoInJSON = arrOfEvents[z].memo;
+          let dataStartOfEvent = arrOfEvents[z].starts_at;
+          let getStartDataOfEvent = new Date(dataStartOfEvent);
+          let dataEndOfEvent = arrOfEvents[z].ends_at;
+          let getEndDataOfEvent = new Date(dataEndOfEvent);
           if(this.memo === memoInJSON){
-            this.detailInformationOfEvent = {
+            this.detailInformationOfEvents.push({
               'Cобытие': this.memo,
-              'Начало события': arrOfEvents[z].starts_at,
-              'Конец события': arrOfEvents[z].ends_at
-            }
+              'Начало события': getStartDataOfEvent.getFullYear() +'-'+ getStartDataOfEvent.getMonth()+'-'+ getStartDataOfEvent.getDate(),
+              'Конец события': getEndDataOfEvent.getFullYear() +'-'+ getEndDataOfEvent.getMonth()+'-'+ getEndDataOfEvent.getDate()
+            });
           }
         }
       }
@@ -261,15 +269,18 @@ export default {
     },
     addEvent(text){
       this.modalWindowAdd = false;
-      let arrOfEvents = this.eventsData.events;
-      let eventInformAdd = {
-        "id": Date.now(),
-        "starts_at": new Date(this.year, this.currentPage, this.dayWhenAddEvent[0]),
-        "ends_at": new Date(this.year, this.currentPage, this.dayWhenAddEvent[0]),
-        "memo": text
+      if(text != ''){
+        let arrOfEvents = this.eventsData.events;
+        let eventInformAdd = {
+          "id": Date.now(),
+          "starts_at": new Date(this.year, this.currentPage, this.dayWhenAddEvent[0]),
+          "ends_at": new Date(this.year, this.currentPage, this.dayWhenAddEvent[0]),
+          "memo": text
+        }
+        arrOfEvents.push(eventInformAdd);
+        this.dayWhenAddEvent.push(text);
       }
-      arrOfEvents.push(eventInformAdd);
-      this.dayWhenAddEvent.push(text);
+      this.inputInAddEvent = '';
     },
     getYear(){
       this.year = this.date.getFullYear();
@@ -478,9 +489,13 @@ export default {
     justify-content: center;
     opacity: 2;
   }
+  .modalWindow img{
+    margin-top: 0px;  
+    margin-left: 90%;  
+  }
   .modalWindow div{
     width: 60%;
-    margin: 0 auto 20px;
+    margin: 0px auto;
     height: 30px;
     text-align: center;  
   }
@@ -488,6 +503,18 @@ export default {
     width: 150px;
     margin: 0 auto 20px;
     height: 30px;
+  }
+  .modalWindowAdd{
+    display: flex;
+    flex-direction: column;
+  }
+  .modalWindowAdd div{
+    margin-bottom: 20px;
+  }
+  .modalWindowAdd input{
+    margin: 0px auto 20px auto;
+    width: 300px;
+    text-align: center;
   }
 
   /*_____ANIMATION______*/
