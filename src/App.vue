@@ -29,18 +29,45 @@
                     v-bind:class="{  'eventBrown': eventBrown(event), 
                                      'eventPurple': eventPurple(event),
                                      'eventOrange': eventOrange(event),
-                                     'eventBlue': eventBlue(event) }">{{ event }}</div>
+                                     'eventBlue': eventBlue(event) }"
+                    v-on:click="getDetailInformation(event)">{{ event }}
+              <div class="event_div" v-if="showDelete(event)">
+                <img  src="src/assets/delete1.png" 
+                      width="15px" 
+                      height="15px"
+                      v-on:click="deleteEvent(event)">
+              </div>
+              </div>
             </li>
           </div>
         </div>
       </transition>
     </div>
     <div v-show="modalWindowAdd" class="underModalWindow">
-      <div class="modalWindow modalWindowAdd">
+      <div class="modalWindow">
         <img src="src/assets/x.png" width="20px" height="20px" v-on:click="modalWindowAdd = false">
         <div class="modalWindow_order">Укажите событие которое хотите добавить на выбраную вами дату.</div>
-        <input type="text" placeholder="Место для вашего события" v-model="inputInAddEvent">
-        <button v-on:click="addEvent(inputInAddEvent)">Добавить</button>
+        <div class="modalWindow-input_select">
+          <input type="text" placeholder="Место для вашего события" v-model="inputInAddEvent">
+          <div>
+            <select v-model="selected">
+              <option disabled value="">Тип события</option>
+              <option v-for="option in options" v-bind:value="option.value">
+                {{ option.text }}
+              </option>
+            </select>
+          </div>
+        </div>
+          <div v-if="textOfError" class="textOfError">Вы обязательно должны указать событие и тип события</div>
+        <button v-on:click="addEvent(inputInAddEvent)">Добавить событие</button>
+      </div>
+    </div>
+    <div v-show="modalWindowInform" class="underModalWindow">
+      <div class="modalWindow">
+        <img src="src/assets/x.png" width="20px" height="20px" v-on:click="modalWindowInform = false">
+        <div class="nameofModal">Вся детальная информация о событии</div>
+        <div v-for="(key, name) in eventDetail" class="detailEvent">{{ name }}: {{ key }}</div>
+        <button v-on:click="modalWindowInform = false">Окей</button>
       </div>
     </div>
   </div> 
@@ -62,7 +89,17 @@ export default {
       eventsData: json,
       modalWindowAdd: false,
       inputInAddEvent: '',
-      dayWhenAddEvent: Number
+      dayWhenAddEvent: Number,
+      options: [
+        { text: 'Встреча', value: '8' },
+        { text: 'День Рождения', value: '4' },
+        { text: 'Праздник', value: '1' },
+        { text: 'Другое', value: '16' }
+      ],
+      selected: '',
+      textOfError: false,
+      modalWindowInform: false,
+      eventDetail: Object
     }
   },
   computed: {
@@ -116,6 +153,17 @@ export default {
         return false;
       }if(!this.isAnotherMonth(weekIndex, dayNumber)){
         return true;
+      }
+    },
+    showDelete(eventText){
+      let arrOfEvents = this.eventsData.events;
+      for(let z = 0; z < arrOfEvents.length; z++){
+        let memo = arrOfEvents[z].memo;
+        if(memo === eventText){
+          if((arrOfEvents[z].type > 1 && arrOfEvents[z].type < 3) || arrOfEvents[z].type > 3){
+            return true;
+          }
+        }
       }
     },
     currentDayOnCalendar(weekindex, dayNumber){
@@ -185,17 +233,69 @@ export default {
       this.dayWhenAddEvent = dayNumber;
     },
     addEvent(text){
-      this.modalWindowAdd = false;
-      if(text != ''){
+      if(this.selected == '' || text == ''){
+        this.textOfError = true;
+      }else if(text != ''){
+        this.modalWindowAdd = false;
         let arrOfEvents = this.eventsData.events;
-        arrOfEvents.push({
+        let eventObj = {
           "id": Date.now(),
           "starts_at": new Date(this.year, this.currentPage, this.dayWhenAddEvent),
           "ends_at": new Date(this.year, this.currentPage, this.dayWhenAddEvent),
-          "memo": text
-        })
+          "memo": text,
+          "type": +this.selected
+        };
+        arrOfEvents.push(eventObj);
+        this.inputInAddEvent = '';
       }
-      this.inputInAddEvent = '';
+    },
+    deleteEvent(eventText){
+      let arrOfEvents = this.eventsData.events;
+      for(let z = 0; z < arrOfEvents.length; z++){
+        let memo = arrOfEvents[z].memo;
+        if(eventText === memo){
+          arrOfEvents.splice(z, 1)
+        }
+      }
+    },
+    getDetailInformation(eventText){
+      let arrOfEvents = this.eventsData.events;
+      for(let z = 0; z < arrOfEvents.length; z++){
+        let memo = arrOfEvents[z].memo;
+        if(memo === eventText){
+          let dataStartOfEvent = arrOfEvents[z].starts_at;
+          let getStartDataOfEvent = new Date(dataStartOfEvent);
+          let dataEndOfEvent = arrOfEvents[z].ends_at;
+          let getEndDataOfEvent = new Date(dataEndOfEvent);
+          if((getStartDataOfEvent.getHours() - 3) > 0){
+            this.modalWindowInform = true;
+            this.eventDetail = {
+              'Событие': eventText,
+              'Начало события': getStartDataOfEvent.toLocaleTimeString(),
+              'Конец события': getEndDataOfEvent.toLocaleTimeString(),
+              'Тип события': this.getType(arrOfEvents[z].type)
+            }
+          }else if(getStartDataOfEvent.getDate() != getEndDataOfEvent.getDate()){
+            this.modalWindowInform = true;
+            this.eventDetail = {
+              'Событие': eventText,
+              'Начало события': getStartDataOfEvent.toLocaleDateString(),
+              'Конец события': getEndDataOfEvent.toLocaleDateString(),
+              'Тип События': this.getType(arrOfEvents[z].type)
+            }
+          }
+        }
+      }
+    },
+    getType(numberOfType){
+      let optionsInFunc = this.options;
+      for(let n = 0; n < optionsInFunc.length; n++){
+        if(numberOfType === +optionsInFunc[n].value){
+          return optionsInFunc[n].text;
+        }else if(numberOfType === 18){
+          return optionsInFunc[4].text;
+        }
+      }
     },
     getYear(){
       this.year = this.date.getFullYear();
@@ -394,8 +494,16 @@ export default {
     cursor: pointer;
     margin: 5px 3px 0px 3px;
     padding-left: 5px;
+    padding-top: 2px;
     border-radius: 10px;
     color: white;
+    display: flex;
+    justify-content: space-between;
+  }
+  .event_div{
+    padding-bottom: 20px;
+    display: flex;
+    width: 20px;
   }
   .eventBrown{
     background-color: #503D37;
@@ -424,8 +532,49 @@ export default {
     left: 550px;
     display: flex;
     flex-direction: column;
-    justify-content: center;
+    /*justify-content: center;*/
     opacity: 2;
+  }
+  .modalWindow img{
+    position: absolute;
+    margin: 5px auto auto 93%;
+  }
+  .modalWindow_order{
+    font-size: 15px;
+    text-align: center;
+    margin: 25px 10px 20px 0px;
+  }
+  .modalWindow-input_select{
+    display: flex;
+    justify-content: space-between;
+    margin-bottom: 20px;
+  }
+  .modalWindow-input_select input{
+    width: 230px;
+    margin-left: 3%;
+  }
+  select{
+    height: 25px;
+    margin-right: 10px;
+  }
+  .modalWindow button{
+    width: 150px;
+    height: 30px;
+    margin: 0 auto;
+  }
+  .textOfError{
+    color: red;
+    font-size: 10px;
+    margin: -10px auto 10px auto;
+  }
+  .errorWindow{
+    display: flex;
+  }
+  .nameofModal{
+    margin: 15px auto 10px auto;
+  }
+  .detailEvent{
+    margin: 0px auto 3px 10px;
   }
   /*_____ANIMATION______*/
   /*________НАЗАД__________*/
