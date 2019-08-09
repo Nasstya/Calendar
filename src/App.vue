@@ -16,14 +16,32 @@
             <li v-for="day in week" 
                 class="li_day"
                 v-bind:class="{   'currentDay': currentDayOnCalendar(i, day), }" >  
+              <img  src="src/assets/plus.png" 
+                  width="16px" 
+                  height="16px"
+                  v-show="addPlus(i, day)" 
+                  v-on:click="openAddEvent(day)"> 
               <div class="day" 
                    v-bind:class="{  'grey': isAnotherMonth(i, day),
                                     'red': weekEndDayFunction(i, day) }">{{ day }}</div>
-              <span v-for="event in buildEvents(i, day)" class="event">{{ event }}</span>
+              <div  v-for="event in buildEvents(i, day)" 
+                    class="event"
+                    v-bind:class="{  'eventBrown': eventBrown(event), 
+                                     'eventPurple': eventPurple(event),
+                                     'eventOrange': eventOrange(event),
+                                     'eventBlue': eventBlue(event) }">{{ event }}</div>
             </li>
           </div>
         </div>
       </transition>
+    </div>
+    <div v-show="modalWindowAdd" class="underModalWindow">
+      <div class="modalWindow modalWindowAdd">
+        <img src="src/assets/x.png" width="20px" height="20px" v-on:click="modalWindowAdd = false">
+        <div class="modalWindow_order">Укажите событие которое хотите добавить на выбраную вами дату.</div>
+        <input type="text" placeholder="Место для вашего события" v-model="inputInAddEvent">
+        <button v-on:click="addEvent(inputInAddEvent)">Добавить</button>
+      </div>
     </div>
   </div> 
 </template>
@@ -42,6 +60,9 @@ export default {
       year: '',
       nameOfClass: '',
       eventsData: json,
+      modalWindowAdd: false,
+      inputInAddEvent: '',
+      dayWhenAddEvent: Number
     }
   },
   computed: {
@@ -89,7 +110,15 @@ export default {
       // день принадлежит текущему месяцу
       return false
     },
-currentDayOnCalendar(weekindex, dayNumber){
+    addPlus(weekIndex, dayNumber) {
+      if(dayNumber < this.date.getDate() &&
+        this.currentPage <= this.date.getMonth()){
+        return false;
+      }if(!this.isAnotherMonth(weekIndex, dayNumber)){
+        return true;
+      }
+    },
+    currentDayOnCalendar(weekindex, dayNumber){
       if(this.currentPage === this.date.getMonth() && 
         dayNumber === this.date.getDate() && 
         this.year === this.date.getFullYear() &&
@@ -105,6 +134,69 @@ currentDayOnCalendar(weekindex, dayNumber){
         return true;
       }
     },
+    eventBrown(eventText){
+      let arrOfEvents = this.eventsData.events;
+      for(let z = 0; z < arrOfEvents.length; z++){
+        let memo = arrOfEvents[z].memo;
+        if(eventText === memo){
+          if(arrOfEvents[z].type === 8 ||
+            arrOfEvents[z].type === 16){
+            return true;
+          }
+        }
+      }
+    },
+    eventPurple(eventText){
+      let arrOfEvents = this.eventsData.events;
+      for(let z = 0; z < arrOfEvents.length; z++){
+        let memo = arrOfEvents[z].memo;
+        if(eventText === memo){
+          if(arrOfEvents[z].type === 1 || 
+             arrOfEvents[z].type === 4){
+            return true;
+          }
+        }
+      }
+    },
+    eventOrange(eventText){
+      let arrOfEvents = this.eventsData.events;
+      for(let z = 0; z < arrOfEvents.length; z++){
+        let memo = arrOfEvents[z].memo;
+        if(eventText === memo){
+          if(arrOfEvents[z].type === 3){
+            return true;
+          }
+        }
+      }
+    },
+    eventBlue(eventText){
+      let arrOfEvents = this.eventsData.events;
+      for(let z = 0; z < arrOfEvents.length; z++){
+        let memo = arrOfEvents[z].memo;
+        if(eventText === memo){
+          if(arrOfEvents[z].type === 18){
+            return true;
+          }
+        }
+      }
+    },
+    openAddEvent(dayNumber){
+      this.modalWindowAdd = true;
+      this.dayWhenAddEvent = dayNumber;
+    },
+    addEvent(text){
+      this.modalWindowAdd = false;
+      if(text != ''){
+        let arrOfEvents = this.eventsData.events;
+        arrOfEvents.push({
+          "id": Date.now(),
+          "starts_at": new Date(this.year, this.currentPage, this.dayWhenAddEvent),
+          "ends_at": new Date(this.year, this.currentPage, this.dayWhenAddEvent),
+          "memo": text
+        })
+      }
+      this.inputInAddEvent = '';
+    },
     getYear(){
       this.year = this.date.getFullYear();
     },
@@ -118,7 +210,8 @@ currentDayOnCalendar(weekindex, dayNumber){
     },
     buildEvents(weekIndex, dayNumber){
       let arrOfEvents = this.eventsData.events;
-      for(let z = 0; z < arrOfEvents.length; z++){
+      const events = [];
+       for(let z = 0; z < arrOfEvents.length; z++){
         let dataStartOfEvent = arrOfEvents[z].starts_at;
         let getStartDataOfEvent = new Date(dataStartOfEvent);
         let dataEndOfEvent = arrOfEvents[z].ends_at;
@@ -129,7 +222,8 @@ currentDayOnCalendar(weekindex, dayNumber){
             this.currentPage == getStartDataOfEvent.getMonth() &&
             this.year == getStartDataOfEvent.getFullYear() &&
             !this.isAnotherMonth(weekIndex, dayNumber)){
-              return memo;
+              events.push(memo);
+              continue;
           }
         }else if(getStartDataOfEvent.getDate() != getEndDataOfEvent.getDate() &&
             !this.isAnotherMonth(weekIndex, dayNumber)){
@@ -137,18 +231,21 @@ currentDayOnCalendar(weekindex, dayNumber){
             if(dayNumber === b &&
             this.currentPage == getStartDataOfEvent.getMonth() &&
             this.year == getStartDataOfEvent.getFullYear()){
-              return memo;
+              events.push(memo);
+              continue;
             }
           }
-          for(let b = 0; b < getEndDataOfEvent.getDate(); b++){
+          for(let b = 0; b <= getEndDataOfEvent.getDate(); b++){
             if(dayNumber === b &&
             this.currentPage == getEndDataOfEvent.getMonth() &&
             this.year == getEndDataOfEvent.getFullYear()){
-               return memo
+              events.push(memo);
+              continue;
             }
           }
         }
       }
+      return events;
     },
     buildCalendar(){
       let massOfMonth = [];
@@ -206,10 +303,12 @@ currentDayOnCalendar(weekindex, dayNumber){
 </script>
 
 <style>
+  @import url('https://fonts.googleapis.com/css?family=Open+Sans&display=swap');
   body{
     background-color: #FAFAFA;
     margin: 0;
     padding: 0;
+    font-family: 'Open Sans', sans-serif;
   }
   .overflow-div{
     overflow: hidden;
@@ -266,7 +365,6 @@ currentDayOnCalendar(weekindex, dayNumber){
     margin: 0px auto 0px 80%;
   }
   .li_day:hover{
-    cursor: pointer;
     border: 1px solid #BAAAAA;
   }
   .grey{
@@ -288,9 +386,46 @@ currentDayOnCalendar(weekindex, dayNumber){
   .li_day{
     border: 1px solid #E0D0D0;
   }
+  .li_day img{
+    position: absolute;
+  }
   .event{
-    font-size: 15px;
-    /*border: 1px solid black;*/
+    font-size: 13px;
+    cursor: pointer;
+    margin: 5px 3px 0px 3px;
+    padding-left: 5px;
+    border-radius: 10px;
+    color: white;
+  }
+  .eventBrown{
+    background-color: #503D37;
+  }
+  .eventPurple{
+    background-color: #922A5F;
+  }
+  .eventOrange{
+    background-color: #ED5A4E;
+  }
+  .eventBlue{
+    background-color: #2369A4;
+  }
+  .underModalWindow{
+    width: 100%;
+    height: 720px;
+    background: rgba(0,0,0, 0.5);
+    position: relative;
+  }
+  .modalWindow{
+    position: relative;
+    background-color: white;
+    width: 400px;
+    height: 200px;
+    top: 200px;
+    left: 550px;
+    display: flex;
+    flex-direction: column;
+    justify-content: center;
+    opacity: 2;
   }
   /*_____ANIMATION______*/
   /*________НАЗАД__________*/
