@@ -5,15 +5,12 @@
         <div class="nameofModal">Вся детальная информация о событии</div>
         <div v-for="(key, name) in eventDetail" class="detailEvent">{{ name }}: {{ key }}</div>
         <button v-on:click="closeModal">Окей</button>
-        <!-- <button v-on:click="getText">Окейjhgf</button> -->
       </div>
     </div>
 </template>
 
 <script>
-	import { eventBus } from './../main.js'
 export default {
-  props: ['eventText'],
   data(){
     return{
       options: [
@@ -27,10 +24,13 @@ export default {
   },
   computed: {
     eventsData() {
-	  return this.$store.state.eventData;
-	},
-	modalWindowDetail() {
+	    return this.$store.state.eventData;
+	  },
+	  modalWindowDetail() {
       return this.$store.state.modalWindowDetail;
+    },
+    eventText() {
+      return this.$store.state.sendTextEvent;
     },
   },
   created: function(){
@@ -47,19 +47,13 @@ export default {
           let dataEndOfEvent = arrOfEvents[z].ends_at;
           let getEndDataOfEvent = new Date(dataEndOfEvent);
           if((getStartDataOfEvent.getHours() - 3) > 0){
-          	// this.$store.commit('changeModalWindowDetail', this.modalWindowDetail);
-          	console.log('привет')
             this.eventDetail = {
               'Событие': this.eventText,
               'Начало события': getStartDataOfEvent.toLocaleTimeString(),
               'Конец события': getEndDataOfEvent.toLocaleTimeString(),
               'Тип события': this.getType(arrOfEvents[z].type)
             }
-            console.log(this.eventDetail)
           }else if(getStartDataOfEvent.getDate() != getEndDataOfEvent.getDate()){
-          	// this.$store.commit('changeModalWindowDetail', this.modalWindowDetail);
-          	console.log('здрасте')
-
             this.eventDetail = {
               'Событие': this.eventText,
               'Начало события': getStartDataOfEvent.toLocaleDateString(),
@@ -76,9 +70,6 @@ export default {
     closeModal(){
     	this.$store.commit('changeModalWindowDetail', this.modalWindowDetail);
     },
-    // getText(){
-    // 	console.log(this.eventText)
-    // },
     getType(numberOfType){
       let optionsInFunc = this.options;
       for(let n = 0; n < optionsInFunc.length; n++){
@@ -89,9 +80,6 @@ export default {
         }
       }
     },
-    getText(){
-    	console.log(this.eventText)
-    }
   }
 };
 </script>

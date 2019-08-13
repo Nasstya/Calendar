@@ -1,7 +1,7 @@
 <template>
 	<div class="underModalWindow">
       <div class="modalWindow">
-        <img src="src/assets/x.png" width="20px" height="20px" >
+        <img src="src/assets/x.png" width="20px" height="20px" v-on:click="closeModalAdd()">
         <div class="modalWindow_order">Укажите событие которое хотите добавить на выбраную вами дату.</div>
         <div class="modalWindow-input_select">
           <input type="text" placeholder="Место для вашего события" v-model="inputInAddEvent">
@@ -21,9 +21,10 @@
 </template>
 
 <script>
-import { mapState } from "vuex";	
+import { mapState } from "vuex";
+import { eventBus } from './../main.js'
 export default {
-	props: ['dayWhenAddEvent', 'monthWhenAddEvent', 'yearWhenAddEvent'],
+	// props: ['dayWhenAddEvent'],
   data(){
     return{
       inputInAddEvent: '',
@@ -37,12 +38,24 @@ export default {
       textOfError: false,
     }
   },
+  // mounted(){
+  //   eventBus.$on('sendDayWhenAddEvent', this.dayWhenAddEvent);
+  // },
   computed: {
     eventsData() {
-	  return this.$store.state.eventData;
-	},
-	modalWindowAdd() {
+	    return this.$store.state.eventData;
+	  },
+	  modalWindowAdd() {
       return this.$store.state.modalWindowAdd;
+    },
+    year() {
+      return this.$store.state.year;
+    },
+    currentPage() {
+      return this.$store.state.currentPage;
+    },
+    dayWhenAddEvent() {
+      return this.$store.state.dayWhenAddEvent;
     },
   },
   methods: {
@@ -54,14 +67,17 @@ export default {
         let arrOfEvents = this.eventsData.events;
         let eventObj = {
           "id": Date.now(),
-          "starts_at": new Date(this.yearWhenAddEvent, this.monthWhenAddEvent, this.dayWhenAddEvent),
-          "ends_at": new Date(this.yearWhenAddEvent, this.monthWhenAddEvent, this.dayWhenAddEvent),
+          "starts_at": new Date(this.year, this.currentPage, this.dayWhenAddEvent),
+          "ends_at": new Date(this.year, this.currentPage, this.dayWhenAddEvent),
           "memo": text,
           "type": +this.selected
         };
         arrOfEvents.push(eventObj);
         this.inputInAddEvent = '';
       }
+    },
+    closeModalAdd(){
+      this.$store.commit('changeModalWindowAdd', this.modalWindowAdd);
     },
   }
 };
