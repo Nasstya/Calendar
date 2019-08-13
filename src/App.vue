@@ -8,9 +8,9 @@
             :dayWhenAddEvent="dayWhenAddEvent"
             :monthWhenAddEvent="month"
             :yearWhenAddEvent="year"></app-add>
-   <app-detail  ref="detail"
-                v-if="modalWindowDetail"
+   <app-detail  v-if="modalWindowDetail"
                 :eventText="text"></app-detail>
+                <!-- <button v-on:click="ght" class="ght">jrtq</button> -->
   </div> 
 </template>
 
@@ -18,7 +18,6 @@
   import appCalendar from './components/Calendar.vue'
   import appAdd from './components/ModalWindowAdd.vue'
   import appDetail from './components/ModalWindowDetail.vue'
-
   export default {
     data(){
       return{
@@ -41,9 +40,17 @@
         return this.$store.state.modalWindowDetail;
       },
     },
+    // methods: {
+    //   ght(){
+    //     console.log(this.text)
+    //     this.$store.commit('changeModalWindowDetail', this.modalWindowDetail);
+    //   }
+    // }
   };
 </script>
 
 <style>
-
+  /*.ght{
+    position: absolute;
+  }*/
 </style>

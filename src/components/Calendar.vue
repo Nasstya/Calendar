@@ -47,7 +47,6 @@
 <script>
   import json from './Calendar_data.json'
   import { mapState } from "vuex";
-  import { eventBus } from './../main.js'
 export default {
   data(){
     return{
@@ -214,15 +213,14 @@ export default {
         let memo = arrOfEvents[z].memo;
         if(eventText === memo){
           arrOfEvents.splice(z, 1)
+          this.$store.commit('changeModalWindowDetail', this.modalWindowDetail);
         }
       }
     },
     openModalDetail(text){
-    	// this.$store.commit('changeModalWindowDetail', this.modalWindowDetail);
-    	// this.$refs.detail.getDetailInformation()
-    	// bus.$on('getDetailInformation', )
+    	console.log('информация')
+    	this.$store.commit('changeModalWindowDetail', this.modalWindowDetail);
     	this.$emit('sendTextEvent', text);
-    	eventBus.$on('getDetailInformation', this.openModalDetail())
     },
     getYear(){
       this.year = this.date.getFullYear();
@@ -428,6 +426,7 @@ export default {
     justify-content: space-between;
   }
   .event_div{
+  	position: relative;
     padding-bottom: 20px;
     display: flex;
     width: 20px;

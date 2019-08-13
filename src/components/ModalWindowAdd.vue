@@ -23,7 +23,7 @@
 <script>
 import { mapState } from "vuex";	
 export default {
-	props: ['dayWhenAddEvent', 'monthWhenAddEvent', 'yearWhenAddEvent',],
+	props: ['dayWhenAddEvent', 'monthWhenAddEvent', 'yearWhenAddEvent'],
   data(){
     return{
       inputInAddEvent: '',
