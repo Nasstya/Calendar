@@ -10,6 +10,7 @@
 </template>
 
 <script>
+import { eventBus } from './../main.js'
 export default {
   props: ['eventText'],
   data(){
@@ -30,6 +31,9 @@ export default {
 	modalWindowDetail() {
       return this.$store.state.modalWindowDetail;
     },
+  },
+  created(){
+  	eventBus.$emit('getDetailInformation', this.getDetailInformation())
   },
   methods: {
     getDetailInformation(){

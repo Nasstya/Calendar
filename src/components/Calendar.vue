@@ -47,6 +47,7 @@
 <script>
   import json from './Calendar_data.json'
   import { mapState } from "vuex";
+  import { eventBus } from './../main.js'
 export default {
   data(){
     return{
@@ -218,7 +219,10 @@ export default {
     },
     openModalDetail(text){
     	// this.$store.commit('changeModalWindowDetail', this.modalWindowDetail);
+    	// this.$refs.detail.getDetailInformation()
+    	// bus.$on('getDetailInformation', )
     	this.$emit('sendTextEvent', text);
+    	eventBus.$on('getDetailInformation', this.openModalDetail())
     },
     getYear(){
       this.year = this.date.getFullYear();

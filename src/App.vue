@@ -8,7 +8,8 @@
             :dayWhenAddEvent="dayWhenAddEvent"
             :monthWhenAddEvent="month"
             :yearWhenAddEvent="year"></app-add>
-   <app-detail  v-if="modalWindowDetail"
+   <app-detail  ref="detail"
+                v-if="modalWindowDetail"
                 :eventText="text"></app-detail>
   </div> 
 </template>
