@@ -9,11 +9,6 @@
   import appPagination from './Pagination.vue'
   import appEventsdays from './EventsDays.vue'
   export default {
-    data(){
-      return{
-        
-      }
-    },
     components: {
       appPagination,
       appEventsdays

@@ -1,15 +1,16 @@
 <template>
-	<div class="underModalWindow">
+  <div class="underModalWindow">
       <div class="modalWindow">
-        <img src="src/assets/x.png" width="20px" height="20px" v-on:click="closeModal">
+        <img src="src/assets/x.png" width="20px" height="20px" v-on:click="getDetailInformation()">
         <div class="nameofModal">Вся детальная информация о событии</div>
         <div v-for="(key, name) in eventDetail" class="detailEvent">{{ name }}: {{ key }}</div>
-        <button v-on:click="closeModal">Окей</button>
+        <button v-on:click="getDetailInformation()">Окей</button>
       </div>
     </div>
 </template>
 
 <script>
+import { bus } from './../main.js'
 export default {
   data(){
     return{
@@ -24,29 +25,25 @@ export default {
   },
   computed: {
     eventsData() {
-	    return this.$store.state.eventData;
-	  },
-	  modalWindowDetail() {
-      return this.$store.state.modalWindowDetail;
-    },
-    eventText() {
-      return this.$store.state.sendTextEvent;
+      return this.$store.state.eventData;
     },
   },
-  created: function(){
-  	this.getDetailInformation();
+  created(){
+    bus.$emit('getDetailInformation', this.getDetailInformation())
   },
   methods: {
-  	getDetailInformation(){
+    getDetailInformation(){
       let arrOfEvents = this.eventsData.events;
       for(let z = 0; z < arrOfEvents.length; z++){
         let memo = arrOfEvents[z].memo;
-        if(memo == this.eventText){
+        console.log(this.memo)
+        if(memo === this.eventText){
           let dataStartOfEvent = arrOfEvents[z].starts_at;
           let getStartDataOfEvent = new Date(dataStartOfEvent);
           let dataEndOfEvent = arrOfEvents[z].ends_at;
           let getEndDataOfEvent = new Date(dataEndOfEvent);
           if((getStartDataOfEvent.getHours() - 3) > 0){
+            this.$store.commit('changeModalWindowDetail', this.modalWindowDetail);
             this.eventDetail = {
               'Событие': this.eventText,
               'Начало события': getStartDataOfEvent.toLocaleTimeString(),
@@ -54,21 +51,16 @@ export default {
               'Тип события': this.getType(arrOfEvents[z].type)
             }
           }else if(getStartDataOfEvent.getDate() != getEndDataOfEvent.getDate()){
+            this.$store.commit('changeModalWindowDetail', this.modalWindowDetail);
             this.eventDetail = {
               'Событие': this.eventText,
               'Начало события': getStartDataOfEvent.toLocaleDateString(),
               'Конец события': getEndDataOfEvent.toLocaleDateString(),
               'Тип События': this.getType(arrOfEvents[z].type)
             }
-          }else{
-          	this.$store.commit('changeModalWindowDetail', this.modalWindowDetail);
           }
         }
       }
-      return this.eventDetail;
-    },
-    closeModal(){
-    	this.$store.commit('changeModalWindowDetail', this.modalWindowDetail);
     },
     getType(numberOfType){
       let optionsInFunc = this.options;
@@ -79,7 +71,7 @@ export default {
           return optionsInFunc[3].text;
         }
       }
-    },
+    }
   }
 };
 </script>

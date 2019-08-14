@@ -34,6 +34,7 @@
 </template>
 
 <script>
+	import { bus } from './../main.js'
 export default {
   data(){
     return{
@@ -45,7 +46,24 @@ export default {
         { text: 'Праздник', value: '1' },
         { text: 'Другое', value: '16' }
       ],
+      year: Number,
+      currentPage: Number,
+      nameOfClass: '',
+      modalWindowAdd: false,
     }
+  },
+  created(){
+  	this.year = this.date.getFullYear();
+    this.currentPage = this.date.getMonth();
+  	bus.$on('sendYear', data => {
+  		this.year = data
+  	});
+  	bus.$on('sendMonth', data => {
+  		this.currentPage = data
+  	});
+  	bus.$on('sendNameOfClass', data => {
+  		this.nameOfClass = data
+  	});
   },
   computed: {
     getCalendar(){
@@ -53,22 +71,7 @@ export default {
     },
     eventsData() {
 	  return this.$store.state.eventData;
-	},
-	modalWindowAdd() {
-      return this.$store.state.modalWindowAdd;
-    },
-    modalWindowDetail() {
-      return this.$store.state.modalWindowDetail;
-    },
-    year() {
-      return this.$store.state.year;
-    },
-    currentPage() {
-      return this.$store.state.currentPage;
-    },
-    nameOfClass() {
-      return this.$store.state.nameOfClass;
-    }
+	}
   },
   methods: {
     isAnotherMonth(weekIndex, dayNumber) {
@@ -169,8 +172,11 @@ export default {
       }
     },
     openAddEvent(dayNumber){
-      this.$store.commit('changeModalWindowAdd', this.modalWindowAdd);
-      this.$store.commit('sendDayWhenAddEvent', dayNumber);
+    	this.modalWindowAdd = true;
+    	bus.$emit('changeModalWindowAdd', this.modalWindowAdd);
+   		bus.$emit('sendDayWhenAddEvent', dayNumber);
+   		bus.$emit('sendYear', this.year);
+    	bus.$emit('sendMonth', this.currentPage);
     },
     deleteEvent(eventText){
       let arrOfEvents = this.eventsData.events;

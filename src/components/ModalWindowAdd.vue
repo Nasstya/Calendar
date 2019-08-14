@@ -1,7 +1,7 @@
 <template>
-	<div class="underModalWindow">
+  <div class="underModalWindow">
       <div class="modalWindow">
-        <img src="src/assets/x.png" width="20px" height="20px" v-on:click="closeModalAdd()">
+        <img src="src/assets/x.png" width="20px" height="20px" @click="closeModalAdd">
         <div class="modalWindow_order">Укажите событие которое хотите добавить на выбраную вами дату.</div>
         <div class="modalWindow-input_select">
           <input type="text" placeholder="Место для вашего события" v-model="inputInAddEvent">
@@ -21,12 +21,12 @@
 </template>
 
 <script>
-import { mapState } from "vuex";
-import { eventBus } from './../main.js'
+import { mapState } from "vuex";  
+import { bus } from './../main.js'
 export default {
-	// props: ['dayWhenAddEvent'],
   data(){
     return{
+      date: new Date(),
       inputInAddEvent: '',
       options: [
         { text: 'Встреча', value: '8' },
@@ -36,34 +36,35 @@ export default {
       ],
       selected: '',
       textOfError: false,
+      dayWhenAddEvent: Number,
+      year: Number,
+      currentPage: Number
     }
   },
-  // mounted(){
-  //   eventBus.$on('sendDayWhenAddEvent', this.dayWhenAddEvent);
-  // },
   computed: {
     eventsData() {
-	    return this.$store.state.eventData;
-	  },
-	  modalWindowAdd() {
-      return this.$store.state.modalWindowAdd;
-    },
-    year() {
-      return this.$store.state.year;
-    },
-    currentPage() {
-      return this.$store.state.currentPage;
-    },
-    dayWhenAddEvent() {
-      return this.$store.state.dayWhenAddEvent;
-    },
+      return this.$store.state.eventData;
+    }
   },
   methods: {
     addEvent(text){
+      bus.$on('sendDayWhenAddEvent', data => {
+        this.dayWhenAddEvent = data;
+      });
+      bus.$on('sendYear', data => {
+        this.year = data
+      });
+      bus.$on('sendMonth', data => {
+        this.currentPage = data
+      });
+      console.log(this.dayWhenAddEvent)
+      console.log(this.year)
+      console.log(this.currentPage)
       if(this.selected == '' || text == ''){
         this.textOfError = true;
       }else if(text != ''){
-      	this.$store.commit('changeModalWindowAdd', this.modalWindowAdd);
+        this.modalWindowAdd = false;
+        bus.$emit('changeModalWindowAdd', this.modalWindowAdd)
         let arrOfEvents = this.eventsData.events;
         let eventObj = {
           "id": Date.now(),
@@ -73,12 +74,14 @@ export default {
           "type": +this.selected
         };
         arrOfEvents.push(eventObj);
+        console.log(arrOfEvents[9].ends_at) // дата добавления последнего события
         this.inputInAddEvent = '';
       }
     },
     closeModalAdd(){
-      this.$store.commit('changeModalWindowAdd', this.modalWindowAdd);
-    },
+      this.modalWindowAdd = false;
+      bus.$emit('changeModalWindowAdd', this.modalWindowAdd)
+    }
   }
 };
 </script>

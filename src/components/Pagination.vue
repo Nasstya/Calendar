@@ -13,58 +13,51 @@
 </template>
 
 <script>
+  import { bus } from './../main.js'
 export default {
   data(){
     return{
-      currentPageForVUEX: 0,
+      currentPage: 0,
       namesOfMonths: ['January', 'February', 'March', 'April', 'May', 'June', 'July', 'August', 'September', 'October', 'November', 'December'],
       nameOfOneMonth: '',
       nameOfDays: ['Пн', 'Вт', 'Ср', 'Чт', 'Пт', 'Сб', 'Вс'],
       date: new Date(),
-      yearForVUEX: '',
+      year: '',
       nameOfClass: '',
     }
   },
   created(){
-    this.yearForVUEX = this.date.getFullYear();
-    this.currentPageForVUEX = this.date.getMonth();
-    this.$store.commit('SET_YEAR', this.yearForVUEX);
-    this.$store.commit('SET_CURRENTPAGE', this.currentPageForVUEX);
+    this.year = this.date.getFullYear();
+    this.currentPage = this.date.getMonth();
     this.nameOfOneMonth = this.namesOfMonths[this.currentPage];
+    bus.$emit('sendYear', this.year);
+    bus.$emit('sendMonth', this.currentPage);
+    bus.$emit('sendNameOfClass', this.nameOfClass);
   },
-  computed: {
-    year() {
-      return this.$store.state.year;
-    },
-    currentPage() {
-      return this.$store.state.currentPage;
-    },
+  updated(){
+    bus.$emit('sendYear', this.year);
+    bus.$emit('sendMonth', this.currentPage);
+    bus.$emit('sendNameOfClass', this.nameOfClass);
   },
   methods: {
     prevPage(){
       if (this.currentPage === 0) {
-        this.$store.commit('currentPageTwelve');
-        this.$store.commit('decrementYear');
-        console.log('Месяц: ' + this.currentPage);
-      console.log('Год: ' + this.year)
+        this.currentPage = 12;
+        this.year--;
       }
       this.nameOfClass = 'prev';
-      this.$store.commit('decrementPage');
+      this.currentPage--;
       this.nameOfOneMonth = this.namesOfMonths[this.currentPage];
-      this.$store.commit('changeNameClass', 'prev');
     },
     nextPage(){
       if (this.currentPage === 11) {
-        this.$store.commit('currentPageMinusOne');
-        this.$store.commit('incrementYear');
-        console.log('Месяц: ' + this.currentPage);
-      console.log('Год: ' + this.year)
+        this.currentPage = -1;
+        this.year++;
       }
       this.nameOfClass = 'next';
-      this.$store.commit('incrementPage');
+      this.currentPage++;
       this.nameOfOneMonth = this.namesOfMonths[this.currentPage];
-      this.$store.commit('changeNameClass', 'next');
-    }
+    },
   }
 };
 </script>

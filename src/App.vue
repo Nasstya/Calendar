@@ -10,20 +10,24 @@
   import appCalendar from './components/Calendar.vue'
   import appAdd from './components/ModalWindowAdd.vue'
   import appDetail from './components/ModalWindowDetail.vue'
+  import { bus } from './main.js'
   export default {
     components: {
       appCalendar,
       appAdd,
       appDetail
     },
-    computed: {
-      modalWindowAdd() {
-        return this.$store.state.modalWindowAdd;
-      },
-      modalWindowDetail() {
-        return this.$store.state.modalWindowDetail;
-      },
+    data(){
+      return{
+        modalWindowAdd: false,
+        modalWindowDetail: false,
+      }
     },
+    created(){
+      bus.$on('changeModalWindowAdd', data => {
+        this.modalWindowAdd = data;
+      })
+    }
   };
 </script>
 
