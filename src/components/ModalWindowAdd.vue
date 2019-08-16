@@ -24,6 +24,7 @@
 import { mapState } from "vuex";  
 import { bus } from './../main.js'
 export default {
+  props: ['dayWhenAddEvent', 'year', 'currentPage'],
   data(){
     return{
       date: new Date(),
@@ -35,10 +36,7 @@ export default {
         { text: 'Другое', value: '16' }
       ],
       selected: '',
-      textOfError: false,
-      dayWhenAddEvent: Number,
-      year: Number,
-      currentPage: Number
+      textOfError: false
     }
   },
   computed: {
@@ -48,18 +46,6 @@ export default {
   },
   methods: {
     addEvent(text){
-      bus.$on('sendDayWhenAddEvent', data => {
-        this.dayWhenAddEvent = data;
-      });
-      bus.$on('sendYear', data => {
-        this.year = data
-      });
-      bus.$on('sendMonth', data => {
-        this.currentPage = data
-      });
-      console.log(this.dayWhenAddEvent)
-      console.log(this.year)
-      console.log(this.currentPage)
       if(this.selected == '' || text == ''){
         this.textOfError = true;
       }else if(text != ''){
@@ -74,7 +60,6 @@ export default {
           "type": +this.selected
         };
         arrOfEvents.push(eventObj);
-        console.log(arrOfEvents[9].ends_at) // дата добавления последнего события
         this.inputInAddEvent = '';
       }
     },

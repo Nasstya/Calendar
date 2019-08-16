@@ -91,10 +91,21 @@ export default {
       return false
     },
     addPlus(weekIndex, dayNumber) {
-      if(dayNumber < this.date.getDate() &&
-        this.currentPage <= this.date.getMonth()){
-        return false;
-      }if(!this.isAnotherMonth(weekIndex, dayNumber)){
+      if(weekIndex === 0 && dayNumber > 15) {
+        // первая неделе и номер дня > 15
+        return false
+      }
+      if (weekIndex === 4 && dayNumber < 15) {
+        // последняя неделя и номер дня < 15
+        return false
+      }
+      if (weekIndex === 5 && dayNumber < 15) {
+        // последняя неделя и номер дня < 15
+        return false
+      }if(this.currentPage > this.date.getMonth()){
+        return true;
+      }if(dayNumber >= this.date.getDate() &&
+        this.currentPage >= this.date.getMonth()){
         return true;
       }
     },
@@ -165,8 +176,15 @@ export default {
       for(let z = 0; z < arrOfEvents.length; z++){
         let memo = arrOfEvents[z].memo;
         if(eventText === memo){
-          if(arrOfEvents[z].type === 18){
-            return true;
+        	let start = arrOfEvents[z].starts_at;
+        	let end = arrOfEvents[z].ends_at;
+          if(start == end){
+          	console.log(arrOfEvents[z].starts_at);
+          	console.log(arrOfEvents[z].ends_at);
+            return false;
+          }if(start.getDate() != end.getDate()){
+          	console.log('re')
+          	return true;
           }
         }
       }
@@ -174,9 +192,9 @@ export default {
     openAddEvent(dayNumber){
     	this.modalWindowAdd = true;
     	bus.$emit('changeModalWindowAdd', this.modalWindowAdd);
-   		bus.$emit('sendDayWhenAddEvent', dayNumber);
-   		bus.$emit('sendYear', this.year);
-    	bus.$emit('sendMonth', this.currentPage);
+   		bus.$emit('DayWhenAddEvent', dayNumber);
+   		bus.$emit('Year', this.year);
+    	bus.$emit('Month', this.currentPage);
     },
     deleteEvent(eventText){
       let arrOfEvents = this.eventsData.events;
@@ -189,8 +207,9 @@ export default {
       }
     },
     openModalDetail(text){
-    	this.$store.commit('changeModalWindowDetail', this.modalWindowDetail);
-    	this.$store.commit('sendTextEvent', text);
+    	this.modalWindowDetail = true;
+    	bus.$emit('changeModalWindowDetail', this.modalWindowDetail);
+    	bus.$emit('sendTextEvent', text);
     },
     getLastDayOfMonth(month) { // нахождение числа последнего дня в месяце
       let dateDaysInMonth = new Date(this.year, month + 1, 0);
