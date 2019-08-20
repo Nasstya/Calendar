@@ -1,4 +1,4 @@
-<template>
+<!-- <template>
   <div class="underModalWindow">
       <div class="modalWindow">
         <img src="src/assets/x.png" width="20px" height="20px" @click="closeModalAdd">
@@ -124,4 +124,4 @@ export default {
   .errorWindow{
     display: flex;
   }
-</style>
+</style> -->

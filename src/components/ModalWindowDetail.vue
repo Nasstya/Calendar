@@ -2,9 +2,30 @@
   <div class="underModalWindow">
       <div class="modalWindow">
         <img src="src/assets/x.png" width="20px" height="20px" v-on:click="closeWindow">
-        <div class="nameofModal">Вся детальная информация о событии</div>
-        <div v-for="(key, name) in eventDetail" class="detailEvent">{{ name }}: {{ key }}</div>
-        <button v-on:click="closeWindow">Окей</button>
+
+        <slot v-if='getDetails'>
+          <div class="nameofModal">Вся детальная информация о событии</div>
+          <div v-for="(key, name) in eventDetail" class="detailEvent">{{ name }}: {{ key }}</div>
+          <button v-on:click="closeWindow">Окей</button>
+        </slot>
+
+        <slot v-if='addEventToLists'>
+          <div class="modalWindow_order">Укажите событие которое хотите добавить на выбраную вами дату.</div>
+          <div class="modalWindow-input_select">
+            <input type="text" placeholder="Место для вашего события" v-model="inputInAddEvent">
+            <div>
+              <select v-model="selected">
+                <option disabled value="">Тип события</option>
+                <option v-for="option in options" v-bind:value="option.value">
+                  {{ option.text }}
+                </option>
+              </select>
+            </div>
+          </div>
+          <div v-if="textOfError" class="textOfError">Вы обязательно должны указать событие и тип события</div>
+          <button v-on:click="addEvent(inputInAddEvent)">Добавить событие</button>
+        </slot>
+
       </div>
     </div>
 </template>
@@ -12,7 +33,7 @@
 <script>
 import { bus } from './../main.js'
 export default {
-  props: ['eventText'],
+  props: ['eventText', 'dayWhenAddEvent', 'year', 'currentPage', 'getDetail', 'addEventToList'],
   data(){
     return{
       options: [
@@ -22,7 +43,13 @@ export default {
         { text: 'Другое', value: '16' }
       ],
       eventDetail: Object,
-      modalWindowDetail: Boolean
+      modalWindowDetail: Boolean,
+      date: new Date(),
+      inputInAddEvent: '',
+      selected: '',
+      textOfError: false,
+      addEventToLists: this.addEventToList,
+      getDetails: this.getDetail
     }
   },
   computed: {
@@ -32,13 +59,14 @@ export default {
   },
   created(){
     bus.$emit('getDetailInformation', this.getDetailInformation())
+    console.log(this.addEventToLists)
+    console.log(this.getDetails)
   },
   methods: {
     getDetailInformation(){
       let arrOfEvents = this.eventsData.events;
       for(let z = 0; z < arrOfEvents.length; z++){
         let memo = arrOfEvents[z].memo;
-        // console.log(this.memo)
         if(memo === this.eventText){
           let dataStartOfEvent = arrOfEvents[z].starts_at;
           let getStartDataOfEvent = new Date(dataStartOfEvent);
@@ -78,6 +106,25 @@ export default {
     closeWindow(){
       this.modalWindowDetail = false;
       bus.$emit('changeModalWindowDetail', this.modalWindowDetail)
+    },
+    addEvent(text){
+      // console.log(this.addEventToLists)
+      if(this.selected == '' || text == ''){
+        this.textOfError = true;
+      }else if(text != ''){
+        this.modalWindowDetail = false;
+        bus.$emit('changeModalWindowDetail', this.modalWindowDetail)
+        let arrOfEvents = this.eventsData.events;
+        let eventObj = {
+          "id": Date.now(),
+          "starts_at": new Date(this.year, this.currentPage, this.dayWhenAddEvent),
+          "ends_at": new Date(this.year, this.currentPage, this.dayWhenAddEvent),
+          "memo": text,
+          "type": +this.selected
+        };
+        arrOfEvents.push(eventObj);
+        this.inputInAddEvent = '';
+      }
     }
   }
 };
@@ -129,5 +176,18 @@ export default {
   }
   .detailEvent{
     margin: 0px auto 3px 10px;
+  }
+  .modalWindow_order{
+    font-size: 15px;
+    text-align: center;
+    margin: 25px 10px 20px 0px;
+  }
+  .textOfError{
+    color: red;
+    font-size: 10px;
+    margin: -10px auto 10px auto;
+  }
+  .errorWindow{
+    display: flex;
   }
 </style>

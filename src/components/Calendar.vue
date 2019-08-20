@@ -1,5 +1,5 @@
 <template>
-	 <div class="overflow-div">
+   <div class="overflow-div">
       <app-pagination></app-pagination>
       <app-eventsdays></app-eventsdays>
     </div>

@@ -19,7 +19,8 @@
                                      'eventPurple': eventPurple(event),
                                      'eventOrange': eventOrange(event),
                                      'eventBlue': eventBlue(event) }"
-                    v-on:click="openModalDetail(event)">{{ event }}
+                    >
+                    <span v-on:click="openModalDetail(event)">{{ event }}</span>
               <div class="event_div" v-if="showDelete(event)">
                 <img  src="src/assets/delete1.png" 
                       width="15px" 
@@ -34,7 +35,7 @@
 </template>
 
 <script>
-	import { bus } from './../main.js'
+  import { bus } from './../main.js'
 export default {
   data(){
     return{
@@ -50,28 +51,30 @@ export default {
       currentPage: Number,
       nameOfClass: '',
       modalWindowAdd: false,
+      addEvent: Boolean,
+      getDetail: Boolean,
     }
   },
   created(){
-  	this.year = this.date.getFullYear();
+    this.year = this.date.getFullYear();
     this.currentPage = this.date.getMonth();
-  	bus.$on('sendYear', data => {
-  		this.year = data
-  	});
-  	bus.$on('sendMonth', data => {
-  		this.currentPage = data
-  	});
-  	bus.$on('sendNameOfClass', data => {
-  		this.nameOfClass = data
-  	});
+    bus.$on('sendYear', data => {
+      this.year = data
+    });
+    bus.$on('sendMonth', data => {
+      this.currentPage = data
+    });
+    bus.$on('sendNameOfClass', data => {
+      this.nameOfClass = data
+    });
   },
   computed: {
     getCalendar(){
       return this.buildCalendar();
     },
     eventsData() {
-	  return this.$store.state.eventData;
-	}
+    return this.$store.state.eventData;
+  }
   },
   methods: {
     isAnotherMonth(weekIndex, dayNumber) {
@@ -136,6 +139,17 @@ export default {
         return true;
       }
     },
+    eventBlue(eventText){
+      let arrOfEvents = this.eventsData.events;
+      for(let z = 0; z < arrOfEvents.length; z++){
+        let memo = arrOfEvents[z].memo;
+        if(eventText === memo){
+          if(arrOfEvents[z].type === 18){
+            return true;
+          }
+        }
+      }
+    },
     eventBrown(eventText){
       let arrOfEvents = this.eventsData.events;
       for(let z = 0; z < arrOfEvents.length; z++){
@@ -171,30 +185,21 @@ export default {
         }
       }
     },
-    eventBlue(eventText){
-      let arrOfEvents = this.eventsData.events;
-      for(let z = 0; z < arrOfEvents.length; z++){
-        let memo = arrOfEvents[z].memo;
-        if(eventText === memo){
-        	let start = arrOfEvents[z].starts_at;
-        	let end = arrOfEvents[z].ends_at;
-          if(start == end){
-          	console.log(arrOfEvents[z].starts_at);
-          	console.log(arrOfEvents[z].ends_at);
-            return false;
-          }if(start.getDate() != end.getDate()){
-          	console.log('re')
-          	return true;
-          }
-        }
-      }
-    },
     openAddEvent(dayNumber){
-    	this.modalWindowAdd = true;
-    	bus.$emit('changeModalWindowAdd', this.modalWindowAdd);
-   		bus.$emit('DayWhenAddEvent', dayNumber);
-   		bus.$emit('Year', this.year);
-    	bus.$emit('Month', this.currentPage);
+      this.modalWindowDetail = true;
+      this.addEvent = true;
+      bus.$emit('changeModalWindowDetail', this.modalWindowDetail);
+      bus.$emit('addEvent', this.addEvent);
+      bus.$emit('DayWhenAddEvent', dayNumber);
+      bus.$emit('Year', this.year);
+      bus.$emit('Month', this.currentPage);
+    },
+    openModalDetail(text){
+      this.modalWindowDetail = true;
+      this.getDetail = true;
+      bus.$emit('changeModalWindowDetail', this.modalWindowDetail);
+      bus.$emit('sendTextEvent', text);
+      bus.$emit('getDetail', this.getDetail);
     },
     deleteEvent(eventText){
       let arrOfEvents = this.eventsData.events;
@@ -202,14 +207,10 @@ export default {
         let memo = arrOfEvents[z].memo;
         if(eventText === memo){
           arrOfEvents.splice(z, 1)
-          this.$store.commit('changeModalWindowDetail', this.modalWindowDetail);
+          this.modalWindowDetail = false;
+          bus.$emit('changeModalWindowDetail', this.modalWindowDetail);
         }
       }
-    },
-    openModalDetail(text){
-    	this.modalWindowDetail = true;
-    	bus.$emit('changeModalWindowDetail', this.modalWindowDetail);
-    	bus.$emit('sendTextEvent', text);
     },
     getLastDayOfMonth(month) { // нахождение числа последнего дня в месяце
       let dateDaysInMonth = new Date(this.year, month + 1, 0);
@@ -377,8 +378,11 @@ export default {
     display: flex;
     justify-content: space-between;
   }
+  .event span{
+    width: 100%;
+  }
   .event_div{
-  	position: relative;
+    position: relative;
     padding-bottom: 20px;
     display: flex;
     width: 20px;
