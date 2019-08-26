@@ -3,7 +3,7 @@
       <app-pagination></app-pagination>
       <app-eventsdays></app-eventsdays>
     </div>
-</template>
+</template> 
 
 <script>
   import appPagination from './Pagination.vue'

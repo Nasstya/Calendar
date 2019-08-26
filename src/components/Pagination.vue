@@ -1,4 +1,4 @@
-<template>
+<template> 
   <div>
     <div class="pagination">
         <div @click="prevPage" class="btn-left"><</div> 

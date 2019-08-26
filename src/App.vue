@@ -9,7 +9,7 @@
                 :getDetail='getDetail'
                 :addEventToList='addEvent'></app-modal>
   </div> 
-</template>
+</template> 
 
 <script>
   import appCalendar from './components/Calendar.vue'

@@ -1,4 +1,4 @@
-<template>
+<template> 
         <transition :name="nameOfClass" >
           <div :key="currentPage" class="fade_wrapper">
             <div v-for="(week, i) in getCalendar" class="d_day">
