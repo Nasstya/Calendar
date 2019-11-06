@@ -83,11 +83,11 @@ export default {
     background-color: white;
   }
   .btn-left, .btn-right{
-    padding-top: 20px;
+    padding-top: 15px;
     font-weight: bold;
     font-size: 40px;
     text-align: center;
-    height: 60px;
+    height: 65px;
   }
   .btn-left:hover, .btn-right:hover{
     background-color: #9D9D9D;
@@ -110,5 +110,4 @@ export default {
     padding-top: 15px;
     font-size: 40px;
   }
-  /*_______________________________*/
 </style>

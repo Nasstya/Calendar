@@ -1,7 +1,7 @@
 <template>
   <div class="underModalWindow">
       <div class="modalWindow">
-        <img src="src/assets/x.png" width="20px" height="20px" @click="closeModalAdd">
+        <img src="src/assets/x.png" class="chrest" @click="closeModalAdd">
         <slot></slot>
       </div>
     </div>
@@ -49,4 +49,10 @@ export default {
     position: absolute;
     margin: 5px auto auto 93%;
   }
+  .chrest{
+    width: 20px;
+    height: 20px;
+    cursor: pointer;
+  }
+
 </style>

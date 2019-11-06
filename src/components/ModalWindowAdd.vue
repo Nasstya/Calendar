@@ -13,7 +13,7 @@
           </select>
         </div>
       </div>
-     <div v-if="textOfError" class="textOfError">Вы обязательно должны указать событие и тип события</div>
+     <transition name="fade"><div v-if="textOfError" class="textOfError">Вы обязательно должны указать событие и тип события</div></transition>
       <button v-on:click="addEvent(inputInAddEvent)" class="modalWindow_button">Добавить событие</button>
     </modal-window>
   </div>

@@ -6,14 +6,13 @@
                 class="li_day"
                 v-bind:class="{   'currentDay': currentDayOnCalendar(i, day), }" >  
               <img  src="src/assets/plus.png" 
-                  width="16px" 
-                  height="16px"
+                  class="plus" 
                   v-show="addPlus(i, day)" 
                   v-on:click="openAddEvent(day)"> 
               <div class="day" 
                    v-bind:class="{  'grey': isAnotherMonth(i, day),
                                     'red': weekEndDayFunction(i, day) }">{{ day }}</div>
-              <div  v-for="event in buildEvents(i, day)" 
+                <div  v-for="event in buildEvents(i, day)" 
                     class="event"
                     v-bind:class="{  'eventBrown': eventBrown(event), 
                                      'eventPurple': eventPurple(event),
@@ -75,15 +74,15 @@ export default {
   },
   methods: {
     isAnotherMonth(weekIndex, dayNumber) {
-      if(weekIndex === 0 && dayNumber > 15) {
+      if(weekIndex == 0 && dayNumber > 15) {
         // первая неделе и номер дня > 15
         return true
       }
-      if (weekIndex === 4 && dayNumber < 15) {
+      if (weekIndex == 4 && dayNumber < 15) {
         // последняя неделя и номер дня < 15
         return true
       }
-      if (weekIndex === 5 && dayNumber < 15) {
+      if (weekIndex == 5 && dayNumber < 15) {
         // последняя неделя и номер дня < 15
         return true
       }
@@ -91,15 +90,15 @@ export default {
       return false
     },
     addPlus(weekIndex, dayNumber) {
-      if(weekIndex === 0 && dayNumber > 15) {
+      if(weekIndex == 0 && dayNumber > 15) {
         // первая неделе и номер дня > 15
         return false
       }
-      if (weekIndex === 4 && dayNumber < 15) {
+      if (weekIndex == 4 && dayNumber < 15) {
         // последняя неделя и номер дня < 15
         return false
       }
-      if (weekIndex === 5 && dayNumber < 15) {
+      if (weekIndex == 5 && dayNumber < 15) {
         // последняя неделя и номер дня < 15
         return false
       }if(this.currentPage > this.date.getMonth()){
@@ -113,7 +112,7 @@ export default {
       let arrOfEvents = this.eventsData.events;
       for(let z = 0; z < arrOfEvents.length; z++){
         let memo = arrOfEvents[z].memo;
-        if(memo === eventText){
+        if(memo == eventText){
           if((arrOfEvents[z].type > 1 && arrOfEvents[z].type < 3) || arrOfEvents[z].type > 3){
             return true;
           }
@@ -121,9 +120,9 @@ export default {
       }
     },
     currentDayOnCalendar(weekindex, dayNumber){
-      if(this.currentPage === this.date.getMonth() && 
-        dayNumber === this.date.getDate() && 
-        this.year === this.date.getFullYear() &&
+      if(this.currentPage == this.date.getMonth() && 
+        dayNumber == this.date.getDate() && 
+        this.year == this.date.getFullYear() &&
         !this.isAnotherMonth(weekindex, dayNumber)){
         return true;
       }
@@ -131,7 +130,7 @@ export default {
     },   
     weekEndDayFunction(weekIndex, dayNumber){
       let dataOfWeekEnd = new Date(this.year, this.currentPage, dayNumber);
-      if((dataOfWeekEnd.getDay() === 6 || dataOfWeekEnd.getDay() === 0) &&
+      if((dataOfWeekEnd.getDay() == 6 || dataOfWeekEnd.getDay() == 0) &&
         !this.isAnotherMonth(weekIndex, dayNumber)){
         return true;
       }
@@ -140,9 +139,9 @@ export default {
       let arrOfEvents = this.eventsData.events;
       for(let z = 0; z < arrOfEvents.length; z++){
         let memo = arrOfEvents[z].memo;
-        if(eventText === memo){
-          if(arrOfEvents[z].type === 8 ||
-            arrOfEvents[z].type === 16){
+        if(eventText == memo){
+          if(arrOfEvents[z].type == 8 ||
+            arrOfEvents[z].type == 16){
             return true;
           }
         }
@@ -152,9 +151,9 @@ export default {
       let arrOfEvents = this.eventsData.events;
       for(let z = 0; z < arrOfEvents.length; z++){
         let memo = arrOfEvents[z].memo;
-        if(eventText === memo){
-          if(arrOfEvents[z].type === 1 || 
-             arrOfEvents[z].type === 4){
+        if(eventText == memo){
+          if(arrOfEvents[z].type == 1 || 
+             arrOfEvents[z].type == 4){
             return true;
           }
         }
@@ -164,8 +163,8 @@ export default {
       let arrOfEvents = this.eventsData.events;
       for(let z = 0; z < arrOfEvents.length; z++){
         let memo = arrOfEvents[z].memo;
-        if(eventText === memo){
-          if(arrOfEvents[z].type === 3){
+        if(eventText == memo){
+          if(arrOfEvents[z].type == 3){
             return true;
           }
         }
@@ -175,7 +174,7 @@ export default {
       let arrOfEvents = this.eventsData.events;
       for(let z = 0; z < arrOfEvents.length; z++){
         let memo = arrOfEvents[z].memo;
-        if(eventText === memo){
+        if(eventText == memo){
         	let dataStartOfEvent = arrOfEvents[z].starts_at;
           let getStartDataOfEvent = new Date(dataStartOfEvent);
           let dataEndOfEvent = arrOfEvents[z].ends_at;
@@ -197,9 +196,8 @@ export default {
       let arrOfEvents = this.eventsData.events;
       for(let z = 0; z < arrOfEvents.length; z++){
         let memo = arrOfEvents[z].memo;
-        if(eventText === memo){
+        if(eventText == memo){
           arrOfEvents.splice(z, 1)
-          this.$store.commit('changeModalWindowDetail', this.modalWindowDetail);
         }
       }
     },
@@ -236,7 +234,7 @@ export default {
         }else if(getStartDataOfEvent.getDate() != getEndDataOfEvent.getDate() &&
             !this.isAnotherMonth(weekIndex, dayNumber)){
           for(let b = getStartDataOfEvent.getDate(); b <= this.getLastDayOfMonth(getStartDataOfEvent.getMonth()); b++){
-            if(dayNumber === b &&
+            if(dayNumber == b &&
             this.currentPage == getStartDataOfEvent.getMonth() &&
             this.year == getStartDataOfEvent.getFullYear()){
               events.push(memo);
@@ -244,7 +242,7 @@ export default {
             }
           }
           for(let b = 0; b <= getEndDataOfEvent.getDate(); b++){
-            if(dayNumber === b &&
+            if(dayNumber == b &&
             this.currentPage == getEndDataOfEvent.getMonth() &&
             this.year == getEndDataOfEvent.getFullYear()){
               events.push(memo);
@@ -270,7 +268,7 @@ export default {
             t--;
             massOfMonth[months].unshift(t)
           }
-        }else if(this.getNumberOfFirstDayInMonth(months) === 0){
+        }else if(this.getNumberOfFirstDayInMonth(months) == 0){
           let t = this.getLastDayOfMonth(months-1) + 1;
           for(let nulldays = 0; nulldays <= 5; nulldays++){
             t--;
@@ -278,8 +276,8 @@ export default {
           }
         }
         //Заполняем конец каждого месяца числами из будущего месяца
-        if((this.getNumberOfFirstDayInMonth(months) === 0 || 
-          this.getNumberOfFirstDayInMonth(months) === 6) &&
+        if((this.getNumberOfFirstDayInMonth(months) == 0 || 
+          this.getNumberOfFirstDayInMonth(months) == 6) &&
           (this.getNumberOfFirstDayInMonth(months + 1) > 1 &&
           this.getNumberOfFirstDayInMonth(months + 1) < 3)){
           let t = 0;
@@ -317,6 +315,11 @@ export default {
     margin: 0;
     padding: 0;
     font-family: 'Open Sans', sans-serif;
+  }
+  .plus{
+    width: 16px;
+    height: 16px;
+    cursor: pointer;
   }
   .overflow-div{
     overflow: hidden;
@@ -382,6 +385,7 @@ export default {
   }
   .event_span{
     width: 100%;
+    word-break: break-all;
   }
   .eventBrown{
     background-color: #503D37;
@@ -398,7 +402,7 @@ export default {
   /*_____ANIMATION______*/
   /*________НАЗАД__________*/
   .prev-enter-active, .prev-leave-active {
-    transition: transform 0.5s ease-in-out;
+    transition: transform 0.25s ease-in-out;
   }
   
   .prev-enter{
@@ -414,7 +418,7 @@ export default {
  /*______________________________*/
  /*________Вперед________*/
 .next-enter-active, .next-leave-active {
-    transition: transform 0.5s ease-in-out;
+    transition: transform 0.25s ease-in-out;
   }
   
   .next-enter{

@@ -39,8 +39,7 @@ export default {
       let arrOfEvents = this.eventsData.events;
       for(let z = 0; z < arrOfEvents.length; z++){
         let memo = arrOfEvents[z].memo;
-        // console.log(this.memo)
-        if(memo === this.eventText){
+        if(memo == this.eventText){
           let dataStartOfEvent = arrOfEvents[z].starts_at;
           let getStartDataOfEvent = new Date(dataStartOfEvent);
           let dataEndOfEvent = arrOfEvents[z].ends_at;
@@ -52,16 +51,13 @@ export default {
               'Конец события': getEndDataOfEvent.toLocaleTimeString(),
               'Тип события': this.getType(arrOfEvents[z].type)
             }
-          }else if(getStartDataOfEvent.getDate() != getEndDataOfEvent.getDate()){
+          }else{
             this.eventDetail = {
               'Событие': this.eventText,
               'Начало события': getStartDataOfEvent.toLocaleDateString(),
               'Конец события': getEndDataOfEvent.toLocaleDateString(),
               'Тип События': this.getType(arrOfEvents[z].type)
             }
-          }else{
-            this.modalWindowDetail = false;
-            bus.$emit('changeModalWindowDetail', this.modalWindowDetail)
           }
         } 
       }
@@ -69,10 +65,12 @@ export default {
     getType(numberOfType){
       let optionsInFunc = this.options;
       for(let n = 0; n < optionsInFunc.length; n++){
-        if(numberOfType === +optionsInFunc[n].value){
+        if(numberOfType == +optionsInFunc[n].value){
           return optionsInFunc[n].text;
-        }else if(numberOfType === 18){
+        }else if(numberOfType == 18){
           return optionsInFunc[3].text;
+        }else if(numberOfType == 3){
+          return optionsInFunc[2].text;
         }
       }
     },

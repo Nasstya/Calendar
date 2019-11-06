@@ -1,10 +1,14 @@
 <template>
   <div class="all">
-   <app-calendar></app-calendar>
-   <app-add v-if="modalWindowAdd"
-            :dataWhenAdd='dataInAdd'></app-add>
-   <app-detail  v-if="modalWindowDetail" 
-                :eventText='text'></app-detail>
+    <app-calendar></app-calendar>
+    <transition name="fade">
+      <template>
+        <app-add v-if="modalWindowAdd"
+              :dataWhenAdd='dataInAdd'></app-add>
+        <app-detail  v-if="modalWindowDetail" 
+                  :eventText='text'></app-detail>
+      </template>
+    </transition>
   </div> 
 </template>
 
@@ -39,12 +43,16 @@
       });
       bus.$on('dataInAdd', data => {
         this.dataInAdd = data;
-        console.log(this.dataInAdd)
       });
     }
   };
 </script>
 
 <style>
-  
+  .fade-enter-active, .fade-leave-active {
+    transition: opacity .5s;
+  }
+  .fade-enter, .fade-leave-to{
+    opacity: 0;
+  }
 </style>
